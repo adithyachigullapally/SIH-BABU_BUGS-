@@ -1,0 +1,27 @@
+# torch installed separately from the CUDA index — see README/setup note
+fastapi
+uvicorn
+python-multipart
+pillow
+numpy
+scikit-image
+rasterio
+# ponytail: transformers pinned to 4.x — Moondream2's trust_remote_code was
+# written against the 4.x API and dies on transformers 5 (`all_tied_weights_keys`).
+# Unpin only when Moondream ships remote code that supports 5.x.
+transformers==4.53.2
+accelerate
+bitsandbytes
+peft
+# ponytail: one openai client for all three brains — Groq, Mistral and Gemini
+# all expose OpenAI-compatible /v1 endpoints, so there is one response shape to
+# normalize instead of three SDKs. Swap to a native SDK only if a provider
+# feature we need is missing from its compat layer.
+openai
+python-dotenv
+datasets
+pandas
+huggingface_hub
+# ponytail: fpdf2 instead of weasyprint — weasyprint needs GTK system libs on
+# Windows. Swap to weasyprint only if the PDF needs real CSS layout.
+fpdf2

@@ -1,0 +1,11 @@
+{
+  "r": 8,
+  "lora_alpha": 16,
+  "lora_dropout": 0.05,
+  "target_modules": [
+    "proj",
+    "qkv"
+  ],
+  "base_model": "vikhyatk/moondream2",
+  "trained_on": "BigEarthNet v2 Sentinel-2 land-cover captions"
+}

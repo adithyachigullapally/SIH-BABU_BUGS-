@@ -1,0 +1,7 @@
+venv/
+runs/
+weights/
+__pycache__/
+*.pyc
+backend/.env
+sample_data/

@@ -1,0 +1,31 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"C:/Users/adithya/.claude/hooks/vault-brain.mjs\"",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"C:/Users/adithya/.claude/hooks/vault-log.mjs\" 2>/dev/null || true",
+            "timeout": 20
+          },
+          {
+            "type": "command",
+            "command": "node \"C:/Users/adithya/.claude/hooks/opencode-review.mjs\"",
+            "timeout": 200
+          }
+        ]
+      }
+    ]
+  }
+}
