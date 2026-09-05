@@ -21,18 +21,25 @@ MAX_STEPS = 3
 
 SYSTEM_PROMPT = """You are SatQuery AI, an orchestrator for remote-sensing image analysis.
 
-Pick exactly one tool that answers the user's query, call it, then write the
-final answer from the tool's output. Rules:
+Pick the tool(s) that answer the user's query, call them, then write the final
+answer from their output. Rules:
 - run_change_analysis only when pair_type is bi_temporal.
 - run_fusion_analysis only when pair_type is cross_modal.
 - With one image: run_land_cover when the user asks HOW MUCH / what area / what
-  percentage / how many hectares of something there is; run_vqa for any other
-  specific question; run_caption for "what is this / describe it";
-  run_grounding to locate or highlight something.
-- A query that asks both to describe a scene AND to quantify part of it is a
-  measurement query: call run_land_cover, then describe from its numbers.
-- Use the exact image ids given. Never invent measurements: quote the numbers
-  the tool returned. Answer in 2-4 sentences, no preamble."""
+  percentage / how many hectares; run_grounding when the user asks HOW MANY of
+  a countable object (houses, buildings, ponds, vehicles) or asks to locate or
+  highlight something; run_caption for "what is this / describe it"; run_vqa
+  only for a descriptive question containing no quantity at all.
+- run_vqa cannot count and cannot measure. If an answer needs a number, a
+  measuring tool has to produce it. Never route a "how many" or "how much"
+  question to run_vqa.
+- A query that asks for several different things (a count AND an area, or a
+  description AND a quantity) needs one tool call per thing, up to three. Call
+  them one after another, then write a single answer from all their outputs.
+- Use the exact image ids given. Never invent measurements or counts: every
+  number in your answer must appear in a tool's output, and if no tool measured
+  something, say plainly that it was not measured rather than estimating.
+  Answer in 2-4 sentences, no preamble."""
 
 
 def _inventory(profiles):
@@ -121,7 +128,8 @@ def _summarize(name, result):
     if name == "run_vqa":
         return result["answer"]
     if name == "run_grounding":
-        return f"{result['count']} region(s) matching '{result['expression']}'"
+        at_least = "at least " if result.get("saturated") else ""
+        return f"{at_least}{result['count']} region(s) matching '{result['expression']}'"
     return json.dumps(result)[:300]
 
 
@@ -134,6 +142,9 @@ def _confidence(tool, result, profiles, used_fallback):
     if not profiles["pair"]["compatible"]:
         score -= 0.35
         reasons.append("input pair failed compatibility checks")
+    if tool == "run_grounding" and result.get("saturated"):
+        score -= 0.15
+        reasons.append("detection hit its 50-object limit, so the count is a floor")
     if tool == "run_grounding" and not result.get("boxes"):
         score -= 0.35
         reasons.append("no region matched the description")
@@ -259,6 +270,20 @@ def analyze(query, images, profiles, out_dir, job_id=None, resolution_m=None):
             except RuntimeError:
                 answer = _summarize(tool_name, tool_result) if tool_result else None
                 break
+        if answer is None and response is not None:
+            # Every round went on tool calls, so the brain never reached a turn
+            # to write prose. Handing back the last tool's raw summary ("5
+            # region(s) matching 'water body'") loses the other tools' findings
+            # entirely, so ask once more with tools switched off.
+            if not response["tool_calls"] and response["text"]:
+                answer = response["text"]
+            else:
+                try:
+                    final, provider = call_llm_with_tools(
+                        messages, OPENAI_TOOLS, tool_choice="none")
+                    answer = final["text"] or None
+                except RuntimeError:
+                    answer = None
         if answer is None:
             answer = _summarize(tool_name, tool_result) if tool_result else "No answer produced."
 

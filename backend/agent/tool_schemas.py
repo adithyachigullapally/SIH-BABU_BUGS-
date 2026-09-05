@@ -9,7 +9,7 @@ models (ministral-8b) get sloppy.
 TOOL_SCHEMAS = [
     {
         "name": "run_vqa",
-        "description": "Answer a specific question about one remote-sensing image - what is present, how many, what type, what condition. This is the default for any single-image question, including questions about land cover.",
+        "description": "Answer a DESCRIPTIVE question about one remote-sensing image - what is present, what type, what condition. Returns prose, never a verified number: it cannot count and cannot measure, and any figure it states is invented rather than computed. For 'how many X' use run_grounding, which counts real detections. For area, coverage or percentage use run_land_cover. Use this tool only for questions that contain no quantity.",
         "parameters": {
             "type": "object",
             "properties": {
@@ -41,12 +41,12 @@ TOOL_SCHEMAS = [
     },
     {
         "name": "run_grounding",
-        "description": "Locate an object or region described in words and return its bounding box. Use when the user says locate, find, highlight, show where, or asks where something is.",
+        "description": "Locate every object matching a description and return one bounding box per match plus their count. Use when the user says locate, find, highlight or show where - and also for 'how many X are there', because the count comes from actual detections rather than from the model's prose. Detection saturates at 50 objects, so a count of 50 means 'at least 50'.",
         "parameters": {
             "type": "object",
             "properties": {
                 "image_id": {"type": "string", "description": "'image1' or 'image2'"},
-                "referring_expression": {"type": "string", "description": "e.g. 'the water body'"},
+                "referring_expression": {"type": "string", "description": "a SINGULAR object noun - 'house', not 'houses'"},
             },
             "required": ["image_id", "referring_expression"],
         },

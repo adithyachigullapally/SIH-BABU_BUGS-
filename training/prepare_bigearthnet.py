@@ -15,6 +15,7 @@ LoRA caption pairs get built from later.
 
 Run: venv/Scripts/python.exe -m training.prepare_bigearthnet [n_patches]
 """
+import collections
 import io
 import json
 import sys
@@ -128,6 +129,40 @@ def _render_rgb(tif_bytes, out_path):
     Image.fromarray(rgb.astype("uint8")).resize((378, 378), Image.BICUBIC).save(out_path)
 
 
+# A random draw follows BigEarthNet's own skew, and the first 300-patch set
+# showed it: 164 patches of arable land, 28 with water, 7 industrial. The
+# adapter learned farmland vocabulary well and water barely. Fill a per-class
+# quota instead so every class the model is expected to name is actually taught.
+CLASS_QUOTA = 60
+
+
+def _stratified(meta, n_patches, quota=CLASS_QUOTA):
+    """Pick patches filling a per-class quota, rarest class first, then top up.
+
+    Rarest first matters: satisfying 'Arable land' would incidentally cover most
+    agriculture classes and leave inland waters short, because BigEarthNet
+    patches carry several labels each and the common ones ride along free.
+    """
+    counts = collections.Counter(l for ls in meta.labels for l in ls)
+    picked, have = [], collections.Counter()
+    for cls, _ in sorted(counts.items(), key=lambda kv: kv[1]):
+        if have[cls] >= quota or len(picked) >= n_patches:
+            continue
+        pool = meta[meta.labels.apply(lambda ls: cls in ls) & ~meta.patch_id.isin(picked)]
+        take = pool.sample(n=min(quota - have[cls], len(pool), n_patches - len(picked)),
+                           random_state=0)
+        for row in take.itertuples():
+            picked.append(row.patch_id)
+            have.update(row.labels)
+    if len(picked) < n_patches:
+        rest = meta[~meta.patch_id.isin(picked)]
+        picked += list(rest.sample(n=min(n_patches - len(picked), len(rest)),
+                                   random_state=0).patch_id)
+    print("  patches per class: " + ", ".join(
+        f"{c}={have[c]}" for c, _ in counts.most_common()))
+    return meta[meta.patch_id.isin(picked)]
+
+
 def build_training_set(n_patches=300, out_dir=None):
     """Render N Sentinel-2 patches to PNG and write question/answer pairs."""
     import pandas as pd
@@ -142,8 +177,7 @@ def build_training_set(n_patches=300, out_dir=None):
         next(n for n in members if n.endswith("metadata.parquet")))))
     meta = meta[meta.patch_id.isin(by_stem)]
     meta = meta[~meta.contains_cloud_or_shadow & ~meta.contains_seasonal_snow]
-    # Spread across the archive so one tile's scenes don't dominate the set.
-    meta = meta.sample(n=min(n_patches, len(meta)), random_state=0)
+    meta = _stratified(meta, min(n_patches, len(meta)))
 
     rows = []
     for i, row in enumerate(meta.itertuples(), 1):

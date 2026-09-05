@@ -76,11 +76,20 @@ def analyze_land_cover(image_path, resolution_m=None, out_dir=None, job_id="job"
     water = (water_index > water_threshold) & (brightness < 0.35) & ~vegetation
     built_up = (brightness > BUILT_UP_BRIGHTNESS) & ~vegetation & ~water
 
+    # Without NIR there is no water signal to threshold. Measured on LEVIR
+    # test_8: the water index reads -0.066 on the actual pond, -0.081 on house
+    # roofs and -0.073 on forest canopy, so dark water, dark shingle and tree
+    # shadow are one population. The old cutoff returned 1.04% "water" that was
+    # 106 roof specks and almost none of the pond. A caveat in prose does not
+    # undo a number in a table, so RGB-only images report water as unmeasured
+    # and those pixels fall through to unclassified.
+    water_measurable = has_nir
     classes = {
         "vegetation": remove_small_objects(vegetation, max_size=MAX_NOISE_PX),
-        "water": remove_small_objects(water, max_size=MAX_NOISE_PX),
         "built_up_or_bare": remove_small_objects(built_up, max_size=MAX_NOISE_PX),
     }
+    if water_measurable:
+        classes["water"] = remove_small_objects(water, max_size=MAX_NOISE_PX)
 
     resolution_m = resolution_m or ground_resolution(image_path)
     total_px = int(brightness.size)
@@ -99,6 +108,10 @@ def analyze_land_cover(image_path, resolution_m=None, out_dir=None, job_id="job"
             entry["hectares"] = round(pixels * resolution_m**2 / 10_000.0, 3)
         entry["largest_patch"] = _largest_patch(mask, resolution_m)
         coverage[name] = entry
+
+    if not water_measurable:
+        coverage["water"] = {"percent": None, "pixels": 0, "hectares": None,
+                             "largest_patch": None, "measurable": False}
 
     other = total_px - sum(c["pixels"] for c in coverage.values())
     coverage["unclassified"] = {
@@ -178,6 +191,9 @@ def _area(entry, resolution_m):
 def _narrate(result):
     cover, resolution = result["coverage"], result["resolution_m"]
     parts = [
+        f"Vegetation covers {_area(cover['vegetation'], resolution)} of the scene "
+        f"and built-up or bare ground {_area(cover['built_up_or_bare'], resolution)}."
+        if cover["water"].get("measurable") is False else
         f"Vegetation covers {_area(cover['vegetation'], resolution)} of the scene, "
         f"water {_area(cover['water'], resolution)}, and built-up or bare ground "
         f"{_area(cover['built_up_or_bare'], resolution)}."
@@ -217,8 +233,10 @@ def _narrate(result):
     if not result["has_nir"]:
         parts.append(
             f"This image has no near-infrared band, so vegetation is estimated with "
-            f"{result['vegetation_index']} rather than NDVI, and the water figure is "
-            "unreliable — in RGB alone, shadow and dark roofs resemble water."
+            f"{result['vegetation_index']} rather than NDVI. Water is not reported "
+            "at all for this image: in visible light a dark pond, a dark roof and "
+            "tree shadow share the same colour signature, so any water percentage "
+            "would be a guess. A near-infrared band separates them cleanly."
         )
     return " ".join(parts)
 
@@ -242,10 +260,13 @@ def demo():
         assert bare["resolution_m"] is None
         assert bare["coverage"]["vegetation"]["hectares"] is None
         assert "no ground resolution" in bare["summary"], bare["summary"]
-        # Everything is classified in this scene, so no leftover clause is needed.
-        assert "matched none" not in bare["summary"], bare["summary"]
         assert 45 < bare["coverage"]["vegetation"]["percent"] < 55, bare["coverage"]
-        assert 20 < bare["coverage"]["water"]["percent"] < 30, bare["coverage"]
+        # This scene is RGB, so water is not measurable: the blue quarter must
+        # fall through to unclassified rather than be reported as a water figure.
+        assert bare["coverage"]["water"]["measurable"] is False, bare["coverage"]
+        assert bare["coverage"]["water"]["percent"] is None, bare["coverage"]
+        assert 20 < bare["coverage"]["unclassified"]["percent"] < 30, bare["coverage"]
+        assert "Water is not reported" in bare["summary"], bare["summary"]
 
         # With one: the whole 200x200 scene at 0.5 m/px is 1.0 ha, and the
         # half-scene of vegetation is 0.5 ha.
@@ -259,11 +280,13 @@ def demo():
         assert Path(scaled["overlay_url"]).is_file()
 
         # Percentages must account for the whole image, once.
-        total = sum(c["percent"] for c in scaled["coverage"].values())
+        total = sum(c["percent"] for c in scaled["coverage"].values()
+                    if c["percent"] is not None)
         assert abs(total - 100.0) < 0.5, total
 
     print("land_cover: ok —",
-          {k: v["percent"] for k, v in scaled["coverage"].items()},
+          {k: v["percent"] for k, v in scaled["coverage"].items()
+           if v["percent"] is not None},
           f"| scene {scaled['scene_hectares']} ha")
 
 

@@ -105,6 +105,9 @@ def caption(image_path, length="normal"):
         return {"caption": load_model().caption(_open(image_path), length=length)["caption"].strip()}
 
 
+DETECT_LIMIT = 50  # Moondream detect()'s own cap
+
+
 def ground(image_path, expression):
     """Locate a described object -> {'boxes': [[x0,y0,x1,y1] in pixels], 'count': int}.
 
@@ -115,6 +118,15 @@ def ground(image_path, expression):
     width, height = image.size
     with _lock:
         objects = load_model().detect(image, expression)["objects"]
+        # Moondream's detect() wants a singular object noun: "houses" makes it
+        # draw one box around the whole cluster (1 object), while "house" finds
+        # 50. The keyword fallback router builds expressions straight from the
+        # user's words, so guarding here covers every caller, not just the LLM.
+        # ponytail: naive plural strip, swap for inflect if odd plurals show up.
+        if len(objects) <= 1 and expression.endswith("s") and not expression.endswith("ss"):
+            retry = load_model().detect(image, expression[:-1])["objects"]
+            if len(retry) > len(objects):
+                objects = retry
     boxes = [
         [
             int(o["x_min"] * width),
@@ -124,7 +136,11 @@ def ground(image_path, expression):
         ]
         for o in objects
     ]
-    return {"boxes": boxes, "count": len(boxes), "expression": expression}
+    # Moondream's detect() stops at 50 objects, so a full 50 is a floor, not a
+    # count. Saying "50 houses" for a scene holding 200 is the same failure mode
+    # as the VLM inventing "1,000 houses" - report the saturation instead.
+    return {"boxes": boxes, "count": len(boxes), "expression": expression,
+            "saturated": len(boxes) >= DETECT_LIMIT}
 
 
 def draw_boxes(image_path, boxes, out_path, colour=(255, 215, 0), width=5):
