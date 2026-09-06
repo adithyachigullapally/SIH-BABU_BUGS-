@@ -33,6 +33,9 @@ app.mount("/files", StaticFiles(directory=RUNS), name="files")
 
 
 
+WEB_IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg"}
+
+
 def _to_url(path, job_id):
     """Filesystem path inside the job dir -> the URL the frontend can fetch."""
     if not path:
@@ -93,6 +96,15 @@ async def analyze_endpoint(
                      resolution_m=resolution_m)
     result["visual_evidence"] = {
         "bbox": result["visual_evidence"].get("bbox"),
+        "boxes": result["visual_evidence"].get("boxes"),
+        "label": result["visual_evidence"].get("label"),
+        "image_size": result["visual_evidence"].get("image_size"),
+        # The browser can display the upload itself only when it is already a
+        # web format; a GeoTIFF is not, so the frontend falls back to the
+        # rendered overlay rather than requesting a file it cannot draw.
+        "image1_url": (_to_url(paths["image1"], job_id)
+                       if paths["image1"] and paths["image1"].suffix in WEB_IMAGE_SUFFIXES
+                       else None),
         "overlay_png_url": _to_url(result["visual_evidence"].get("overlay_png_url"), job_id),
         "change_mask_url": _to_url(result["visual_evidence"].get("change_mask_url"), job_id),
     }

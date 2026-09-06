@@ -89,6 +89,12 @@ def run_tool(name, args, images, out_dir, job_id, resolution_m=None):
         evidence = {}
         if result["boxes"]:
             evidence["bbox"] = result["boxes"][0]
+            # Every box, not just the first: the frontend places a label per
+            # detection at its real coordinates, so the annotation on screen is
+            # the model's actual output rather than a decorative overlay.
+            evidence["boxes"] = result["boxes"]
+            evidence["label"] = result["expression"]
+            evidence["image_size"] = list(vlm._open(path).size)
             evidence["overlay_png_url"] = vlm.draw_boxes(
                 path, result["boxes"], Path(out_dir) / f"{job_id}_boxes.png"
             )
@@ -133,34 +139,40 @@ def _summarize(name, result):
     return json.dumps(result)[:300]
 
 
+CONFIDENCE_BASE = 0.85
+
+
 def _confidence(tool, result, profiles, used_fallback):
-    """An explainable number, not a vibe: named signals, each with a stated weight."""
-    score, reasons = 0.85, []
+    """An explainable number, not a vibe: named signals, each with a stated weight.
+
+    Returns the score, the reason strings, and the same deductions carried as
+    (amount, reason) pairs — the UI and the PDF both show the arithmetic, and a
+    reason without its weight leaves the subtraction unverifiable.
+    """
+    score, deductions = CONFIDENCE_BASE, []
+
+    def deduct(amount, why):
+        nonlocal score
+        score -= amount
+        deductions.append({"amount": round(amount, 2), "reason": why})
+
     if used_fallback:
-        score -= 0.15
-        reasons.append("tool chosen by keyword fallback, no LLM available")
+        deduct(0.15, "tool chosen by keyword fallback, no LLM available")
     if not profiles["pair"]["compatible"]:
-        score -= 0.35
-        reasons.append("input pair failed compatibility checks")
+        deduct(0.35, "input pair failed compatibility checks")
     if tool == "run_grounding" and result.get("saturated"):
-        score -= 0.15
-        reasons.append("detection hit its 50-object limit, so the count is a floor")
+        deduct(0.15, "detection hit its 50-object limit, so the count is a floor")
     if tool == "run_grounding" and not result.get("boxes"):
-        score -= 0.35
-        reasons.append("no region matched the description")
+        deduct(0.35, "no region matched the description")
     if tool == "run_change_analysis" and result.get("change_percent", 0) < 0.05:
-        score -= 0.10
-        reasons.append("change is at or below the noise floor")
+        deduct(0.10, "change is at or below the noise floor")
     if tool == "run_land_cover" and not result.get("resolution_m"):
-        score -= 0.10
-        reasons.append("no ground resolution, so percentages only and no areas")
+        deduct(0.10, "no ground resolution, so percentages only and no areas")
     if tool in ("run_land_cover", "run_fusion_analysis") and not result.get("has_nir"):
-        score -= 0.15
-        reasons.append("no near-infrared band, vegetation index is a proxy")
+        deduct(0.15, "no near-infrared band, vegetation index is a proxy")
     if tool in ("run_vqa", "run_caption"):
-        score -= 0.05
-        reasons.append("free-text model output, not a measurement")
-    return round(max(score, 0.1), 2), reasons
+        deduct(0.05, "free-text model output, not a measurement")
+    return round(max(score, 0.1), 2), [d["reason"] for d in deductions], deductions
 
 
 def _fallback_tool(query, profiles):
@@ -287,12 +299,15 @@ def analyze(query, images, profiles, out_dir, job_id=None, resolution_m=None):
         if answer is None:
             answer = _summarize(tool_name, tool_result) if tool_result else "No answer produced."
 
-    confidence, reasons = _confidence(tool_name, tool_result or {}, profiles, used_fallback)
+    confidence, reasons, deductions = _confidence(
+        tool_name, tool_result or {}, profiles, used_fallback)
     return {
         "job_id": job_id,
         "answer": answer,
         "confidence": confidence,
         "confidence_reasons": reasons,
+        "confidence_base": CONFIDENCE_BASE,
+        "confidence_deductions": deductions,
         "task_classified": tool_name,
         "llm_provider": provider,
         "execution_trace": trace,
@@ -336,8 +351,12 @@ def demo():
         result, ev = run_tool(tool, args, images, tmp, "demo")
         assert result["change_percent"] >= 0 and Path(ev["change_mask_url"]).is_file()
 
-    conf, reasons = _confidence("run_grounding", {"boxes": []}, single, used_fallback=True)
+    conf, reasons, deductions = _confidence(
+        "run_grounding", {"boxes": []}, single, used_fallback=True)
     assert conf < 0.5 and len(reasons) == 2, (conf, reasons)
+    # The stated deductions must actually account for the gap from the base,
+    # or the breakdown shown to a judge is decoration rather than arithmetic.
+    assert abs(CONFIDENCE_BASE - sum(d["amount"] for d in deductions) - conf) < 1e-9, deductions
 
     print("controller: routing, dispatch and confidence checks passed")
 
