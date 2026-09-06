@@ -3,474 +3,510 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
 <title>SatQuery AI</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Fira+Sans:wght@300;400;500;600;700&display=swap">
 <style>
+  /* ────────────────────────────────────────────────────────────
+     Minimalism & Swiss Style: monochrome ground, a single accent,
+     zero radius, no shadows, structure carried by rules and grid.
+     Fira Sans for labels, Fira Code for every figure.
+     ──────────────────────────────────────────────────────────── */
   :root {
-    --bg:       #0c0d0f;
-    --panel:    #121316;
-    --hair:     #232529;
-    --hair-2:   #2f3238;
-    --ink:      #e9eaec;
-    --ink-2:    #9aa0a8;
-    --ink-3:    #676d75;
-    --accent:   #c85fa4;
-    --veg:      #5c9e70;
-    --water:    #4d8bc4;
-    --built:    #c3894f;
-    --ok:       #5c9e70;
-    --warn:     #c3894f;
-    --bad:      #c9695c;
-    --ui:   "Archivo", "Segoe UI", system-ui, sans-serif;
-    --data: "IBM Plex Mono", Consolas, monospace;
-    --topbar: 2.5rem;
-    --statusbar: 1.65rem;
+    /* Declare the scheme or Chrome's "auto dark mode for web contents" repaints
+       this page itself, overriding the palette with its own inversion. */
+    color-scheme: light;
+    --paper:   #ffffff;
+    --ground:  #f2f2f0;
+    --ink:     #0a0a0a;
+    --ink-2:   #4a4a4a;
+    --ink-3:   #8a8a88;
+    --rule:    #d6d6d2;
+    --rule-2:  #0a0a0a;
+    --accent:  #d6006e;
+    --plate:   #17171a;
+
+    --veg:     #2f7d4a;
+    --water:   #1f5f96;
+    --built:   #9a5f14;
+    --ok:      #2f7d4a;
+    --warn:    #9a5f14;
+    --bad:     #b7241c;
+
+    --sans: "Fira Sans", "Segoe UI", system-ui, sans-serif;
+    --mono: "Fira Code", Consolas, monospace;
+
+    --gap:  1.5rem;
+    --bar:  2.75rem;
+    --foot: 1.75rem;
   }
-  :root[data-theme="light"] {
-    --bg:     #f4f4f5;
-    --panel:  #ffffff;
-    --hair:   #e3e4e7;
-    --hair-2: #cdcfd4;
-    --ink:    #0f1012;
-    --ink-2:  #55595f;
-    --ink-3:  #83888f;
-    --accent: #a8377f;
-    --veg:    #3c7d51;
-    --water:  #2a6ba5;
-    --built:  #96631f;
-    --ok:     #3c7d51;
-    --warn:   #96631f;
-    --bad:    #b04a3c;
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --paper:   #131316;
+      --ground:  #0b0b0d;
+      --ink:     #f2f2f0;
+      --ink-2:   #b0b0ae;
+      --ink-3:   #77777a;
+      --rule:    #2a2a2e;
+      --rule-2:  #f2f2f0;
+      --accent:  #ff3d96;
+      --plate:   #000000;
+      --veg:     #57a877;
+      --water:   #4f92cc;
+      --built:   #c58f4c;
+      --ok:      #57a877;
+      --warn:    #c58f4c;
+      --bad:     #e0655c;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --paper:   #131316;
+    --ground:  #0b0b0d;
+    --ink:     #f2f2f0;
+    --ink-2:   #b0b0ae;
+    --ink-3:   #77777a;
+    --rule:    #2a2a2e;
+    --rule-2:  #f2f2f0;
+    --accent:  #ff3d96;
+    --plate:   #000000;
+    --veg:     #57a877;
+    --water:   #4f92cc;
+    --built:   #c58f4c;
+    --ok:      #57a877;
+    --warn:    #c58f4c;
+    --bad:     #e0655c;
   }
 
   * { box-sizing: border-box; }
   html, body { height: 100%; }
   body {
     margin: 0;
-    background: var(--bg);
+    background: var(--ground);
     color: var(--ink);
-    font-family: var(--ui);
-    font-size: 13px;
+    font-family: var(--sans);
+    font-size: 14px;
     line-height: 1.5;
     overflow: hidden;
     -webkit-font-smoothing: antialiased;
   }
   button, input, select, textarea { font: inherit; color: inherit; }
-  :focus-visible { outline: 1px solid var(--accent); outline-offset: 1px; }
-  ::-webkit-scrollbar { width: 9px; height: 9px; }
-  ::-webkit-scrollbar-thumb { background: var(--hair-2); }
+  button, label.file, a { cursor: pointer; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-thumb { background: var(--rule); }
   ::-webkit-scrollbar-track { background: transparent; }
 
-  /* ─── top bar ─── */
-  .topbar {
-    height: var(--topbar);
+  /* ── masthead ── */
+  .masthead {
+    height: var(--bar);
     display: flex;
     align-items: center;
-    gap: 1.25rem;
-    padding: 0 0.9rem;
-    border-bottom: 1px solid var(--hair);
-    background: var(--panel);
+    gap: 2rem;
+    padding: 0 var(--gap);
+    background: var(--paper);
+    border-bottom: 2px solid var(--rule-2);
   }
-  .wordmark {
+  .mark {
     font-weight: 700;
-    font-size: 0.84rem;
-    letter-spacing: 0.005em;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
+    font-size: 1rem;
+    letter-spacing: -0.025em;
     white-space: nowrap;
   }
-  .wordmark::before {
-    content: "";
-    width: 0.5rem;
-    height: 0.5rem;
-    border: 1.5px solid var(--accent);
-    border-radius: 50%;
-  }
-  .telem {
+  .mark span { color: var(--accent); }
+  .rig {
     margin-left: auto;
     display: flex;
     align-items: center;
-    gap: 1.1rem;
-    font-family: var(--data);
-    font-size: 0.66rem;
+    gap: 1.5rem;
+    font-family: var(--mono);
+    font-size: 0.7rem;
     color: var(--ink-3);
   }
-  .t { display: inline-flex; align-items: center; gap: 0.35rem; white-space: nowrap; }
-  .led { width: 5px; height: 5px; background: var(--ink-3); flex: none; }
-  .led.on { background: var(--ok); }
-  .led.off { background: var(--bad); }
-  .ghost {
+  .sig { display: inline-flex; align-items: center; gap: 0.4rem; white-space: nowrap; }
+  .sig::before {
+    content: "";
+    width: 6px; height: 6px;
+    background: var(--ink-3);
+  }
+  .sig.up::before { background: var(--ok); }
+  .sig.down::before { background: var(--bad); }
+  .swap {
     background: none;
     border: 0;
-    border-left: 1px solid var(--hair);
-    padding: 0.2rem 0 0.2rem 1rem;
+    padding: 0;
+    font-family: var(--mono);
+    font-size: 0.7rem;
     color: var(--ink-3);
-    font-family: var(--data);
-    font-size: 0.66rem;
-    cursor: pointer;
-  }
-  .ghost:hover { color: var(--accent); }
-
-  /* ─── frame ─── */
-  .frame {
-    height: calc(100% - var(--topbar) - var(--statusbar));
-    display: grid;
-    grid-template-columns: 17.5rem minmax(0, 1fr) 22rem;
-  }
-  .rail, .inspector { background: var(--panel); overflow-y: auto; }
-  .rail { border-right: 1px solid var(--hair); }
-  .inspector { border-left: 1px solid var(--hair); }
-  .plate { position: relative; background: #000; min-width: 0; overflow: hidden; }
-  :root[data-theme="light"] .plate { background: #d9dadd; }
-
-  /* ─── rail ─── */
-  .sec { border-bottom: 1px solid var(--hair); padding: 0.85rem 0.9rem; }
-  .sec:last-child { border-bottom: 0; }
-  .sec-h {
-    font-family: var(--data);
-    font-size: 0.62rem;
-    letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: var(--ink-3);
-    margin-bottom: 0.6rem;
+    letter-spacing: 0.08em;
+    transition: color 220ms;
+  }
+  .swap:hover { color: var(--accent); }
+
+  /* ── grid ── */
+  .board {
+    height: calc(100% - var(--bar) - var(--foot));
+    display: grid;
+    grid-template-columns: 19rem minmax(0, 1fr) 23rem;
+    gap: 1px;
+    background: var(--rule);
+  }
+  .col { background: var(--paper); overflow-y: auto; }
+  .plate { background: var(--plate); position: relative; overflow: hidden; min-width: 0; }
+
+  /* ── blocks ── */
+  .block { padding: var(--gap); border-bottom: 1px solid var(--rule); }
+  .block:last-child { border-bottom: 0; }
+  .kicker {
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--rule-2);
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-    gap: 0.5rem;
+    gap: 1rem;
   }
-  .sec-h span { letter-spacing: 0.06em; }
-  .req { color: var(--accent); }
+  .kicker em { font-style: normal; color: var(--accent); letter-spacing: 0.1em; }
+  .kicker i { font-style: normal; color: var(--ink-3); letter-spacing: 0.1em; font-weight: 400; }
 
-  .drop {
+  /* ── controls ── */
+  .file {
     display: block;
     position: relative;
-    border: 1px dashed var(--hair-2);
-    padding: 0.6rem 0.7rem;
-    cursor: pointer;
-    font-family: var(--data);
-    font-size: 0.68rem;
+    border: 1px solid var(--rule-2);
+    padding: 0.7rem 0.8rem;
+    font-family: var(--mono);
+    font-size: 0.72rem;
     color: var(--ink-2);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    transition: background 220ms, color 220ms;
   }
-  .drop:hover { border-color: var(--accent); color: var(--ink); }
-  .drop.filled { border-style: solid; color: var(--ink); }
-  .drop input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+  .file:hover { background: var(--ink); color: var(--paper); }
+  .file.set { background: var(--ink); color: var(--paper); }
+  .file input { position: absolute; width: 1px; height: 1px; opacity: 0; }
 
   select, input[type=number] {
     width: 100%;
     background: transparent;
     border: 0;
-    border-bottom: 1px solid var(--hair-2);
-    padding: 0.3rem 0;
-    margin-top: 0.45rem;
-    font-family: var(--data);
-    font-size: 0.72rem;
-    color: var(--ink-2);
+    border-bottom: 1px solid var(--rule);
+    padding: 0.45rem 0;
+    margin-top: 0.75rem;
+    font-family: var(--mono);
+    font-size: 0.74rem;
     border-radius: 0;
+    transition: border-color 220ms;
   }
-  input[type=number] { margin-top: 0; color: var(--ink); }
+  select { color: var(--ink-2); }
+  select:hover, input[type=number]:hover { border-bottom-color: var(--ink-2); }
   select:focus, input[type=number]:focus, textarea:focus { border-color: var(--accent); outline: none; }
   textarea {
     width: 100%;
     background: transparent;
-    border: 1px solid var(--hair-2);
-    padding: 0.5rem 0.55rem;
-    font-family: var(--ui);
-    font-size: 0.85rem;
-    min-height: 3.6rem;
-    resize: vertical;
+    border: 1px solid var(--rule-2);
+    padding: 0.7rem;
+    font-family: var(--sans);
+    font-size: 0.92rem;
     line-height: 1.45;
+    min-height: 4.5rem;
+    resize: vertical;
     border-radius: 0;
   }
   ::placeholder { color: var(--ink-3); }
-  .note { font-size: 0.7rem; color: var(--ink-3); margin-top: 0.5rem; line-height: 1.4; }
+  .aside { font-size: 0.75rem; color: var(--ink-3); margin-top: 0.75rem; line-height: 1.45; }
 
-  .run {
+  .go {
     width: 100%;
-    background: var(--accent);
-    color: #fff;
+    background: var(--ink);
+    color: var(--paper);
     border: 0;
-    padding: 0.55rem;
+    border-radius: 0;
+    padding: 0.8rem;
+    margin-top: 1rem;
+    font-family: var(--mono);
     font-weight: 600;
     font-size: 0.78rem;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.16em;
     text-transform: uppercase;
-    cursor: pointer;
-    margin-top: 0.7rem;
+    transition: background 220ms;
   }
-  .run:hover:not(:disabled) { filter: brightness(1.1); }
-  .run:disabled { background: var(--hair-2); color: var(--ink-3); cursor: progress; }
+  .go:hover:not(:disabled) { background: var(--accent); }
+  .go:disabled { background: var(--rule); color: var(--ink-3); cursor: progress; }
 
-  .qlist { display: flex; flex-direction: column; }
-  .qlist button {
+  .preset { display: flex; flex-direction: column; }
+  .preset button {
     background: none;
     border: 0;
-    border-top: 1px solid var(--hair);
+    border-bottom: 1px solid var(--rule);
+    border-radius: 0;
     text-align: left;
-    padding: 0.4rem 0;
+    padding: 0.6rem 0;
     color: var(--ink-2);
-    font-size: 0.78rem;
-    cursor: pointer;
+    font-size: 0.85rem;
+    display: flex;
+    gap: 0.75rem;
+    transition: color 220ms, padding-left 220ms;
   }
-  .qlist button:first-child { border-top: 0; }
-  .qlist button:hover { color: var(--accent); }
+  .preset button:last-child { border-bottom: 0; }
+  .preset button::before {
+    content: attr(data-n);
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    color: var(--ink-3);
+    flex: none;
+    padding-top: 0.15rem;
+  }
+  .preset button:hover { color: var(--accent); padding-left: 0.3rem; }
 
-  /* ─── plate ─── */
+  /* ── plate ── */
   .stage { position: absolute; top: 0; left: 0; transform-origin: 0 0; }
   .stage > img { display: block; position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
-  .stage > img.base { position: relative; }
-  .reveal { position: absolute; inset: 0; overflow: hidden; }
-  .reveal img { display: block; width: 100%; height: 100%; }
+  .stage > img.fig { position: relative; }
+  .peel { position: absolute; inset: 0; overflow: hidden; }
+  .peel img { display: block; width: 100%; height: 100%; }
 
-  .det {
+  .hit {
     position: absolute;
-    border: 1.5px solid var(--accent);
-    background: rgba(200, 95, 164, 0.14);
-    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.45);
+    border: 2px solid var(--accent);
     opacity: 0;
-    animation: fadein 0.22s ease forwards;
+    animation: reveal 0.22s ease forwards;
   }
-  @keyframes fadein { to { opacity: 1; } }
-  .det b {
+  @keyframes reveal { to { opacity: 1; } }
+  .hit b {
     position: absolute;
-    left: -1px;
+    left: -2px;
     bottom: 100%;
     transform-origin: 0 100%;
     background: var(--accent);
     color: #fff;
-    font-family: var(--data);
+    font-family: var(--mono);
     font-size: 9px;
     font-weight: 500;
-    letter-spacing: 0.03em;
-    line-height: 1.45;
-    padding: 0 3px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    line-height: 1.5;
+    padding: 0 4px;
     white-space: nowrap;
   }
-  .det.mute b { display: none; }
+  .hit.bare b { display: none; }
 
-  .split { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--accent); z-index: 6; cursor: ew-resize; }
-  .split::before { content: ""; position: absolute; inset: 0 -9px; }
-  .split::after {
+  .seam { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--accent); z-index: 6; cursor: ew-resize; }
+  .seam::before { content: ""; position: absolute; inset: 0 -10px; }
+  .seam::after {
     content: "";
     position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 0.8rem;
-    height: 0.8rem;
-    transform: translate(-50%, -50%) rotate(45deg);
+    top: 50%; left: 50%;
+    width: 1rem; height: 1rem;
+    transform: translate(-50%, -50%);
     background: var(--accent);
   }
 
-  .sweepline {
+  .radar {
     position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 22%;
+    top: 0; bottom: 0;
+    width: 20%;
     z-index: 7;
     pointer-events: none;
-    background: linear-gradient(90deg, transparent, rgba(200,95,164,0.05) 50%, rgba(200,95,164,0.5) 97%, #fff);
-    animation: sweep 1.4s linear infinite;
+    background: linear-gradient(90deg, transparent, rgba(214,0,110,0.06) 55%, rgba(214,0,110,0.6) 97%, #fff);
+    animation: pass 1.3s linear infinite;
   }
-  @keyframes sweep { from { left: -24%; } to { left: 102%; } }
+  @keyframes pass { from { left: -22%; } to { left: 102%; } }
 
-  .tools {
+  .rig-tools {
     position: absolute;
-    left: 0.7rem;
-    bottom: 0.7rem;
+    left: var(--gap);
+    bottom: var(--gap);
     display: flex;
     z-index: 8;
-    border: 1px solid var(--hair-2);
-    background: rgba(12,13,15,0.9);
+    background: var(--paper);
+    border: 1px solid var(--rule-2);
   }
-  :root[data-theme="light"] .tools { background: rgba(255,255,255,0.92); }
-  .tools button {
+  .rig-tools button {
     background: none;
     border: 0;
-    border-right: 1px solid var(--hair-2);
+    border-right: 1px solid var(--rule);
+    border-radius: 0;
     color: var(--ink-2);
-    font-family: var(--data);
-    font-size: 0.66rem;
-    padding: 0.3rem 0.55rem;
-    cursor: pointer;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    padding: 0.4rem 0.7rem;
+    transition: background 220ms, color 220ms;
   }
-  .tools button:last-child { border-right: 0; }
-  .tools button:hover:not(:disabled) { color: var(--accent); }
-  .tools button[aria-pressed="true"] { background: var(--accent); color: #fff; }
-  .tools button:disabled { opacity: 0.4; cursor: not-allowed; }
+  .rig-tools button:last-child { border-right: 0; }
+  .rig-tools button:hover:not(:disabled) { background: var(--ink); color: var(--paper); }
+  .rig-tools button[aria-pressed="true"] { background: var(--accent); color: #fff; }
+  .rig-tools button:disabled { color: var(--ink-3); opacity: 0.5; cursor: not-allowed; }
 
-  .readout {
+  .gauge {
     position: absolute;
-    right: 0.7rem;
-    bottom: 0.7rem;
+    right: var(--gap);
+    bottom: var(--gap);
     z-index: 8;
-    font-family: var(--data);
-    font-size: 0.64rem;
-    color: var(--ink-2);
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    color: #fff;
     text-align: right;
-    line-height: 1.65;
-    text-shadow: 0 1px 3px #000;
+    line-height: 1.7;
+    mix-blend-mode: difference;
   }
-  :root[data-theme="light"] .readout { text-shadow: 0 1px 3px #fff; }
-
-  .keyline {
+  .swatchbar {
     position: absolute;
-    left: 0.7rem;
-    top: 0.7rem;
+    left: var(--gap);
+    top: var(--gap);
     z-index: 8;
     display: flex;
-    gap: 0.85rem;
+    gap: 1rem;
     flex-wrap: wrap;
-    font-family: var(--data);
-    font-size: 0.62rem;
+    background: var(--paper);
+    border: 1px solid var(--rule-2);
+    padding: 0.35rem 0.6rem;
+    font-family: var(--mono);
+    font-size: 0.66rem;
     color: var(--ink-2);
-    text-shadow: 0 1px 3px #000;
   }
-  :root[data-theme="light"] .keyline { text-shadow: 0 1px 3px #fff; }
-  .keyline i { display: inline-block; width: 0.5rem; height: 0.5rem; margin-right: 0.3rem; vertical-align: -1px; }
+  .swatchbar i { display: inline-block; width: 0.6rem; height: 0.6rem; margin-right: 0.35rem; vertical-align: -1px; }
 
-  .void {
+  .blank {
     position: absolute;
     inset: 0;
     display: grid;
     place-content: center;
-    justify-items: center;
-    gap: 0.55rem;
-    text-align: center;
-    padding: 3rem;
-    color: var(--ink-3);
+    justify-items: start;
+    gap: 0.9rem;
+    padding: 12%;
+    color: #8a8a88;
   }
-  .void h2 { font-size: 0.95rem; font-weight: 600; color: var(--ink-2); margin: 0; letter-spacing: -0.01em; }
-  .void p { margin: 0; max-width: 26rem; font-size: 0.82rem; line-height: 1.55; }
-
-  /* ─── inspector ─── */
-  .isec { border-bottom: 1px solid var(--hair); padding: 0.9rem; }
-  .isec:last-child { border-bottom: 0; }
-  .ih {
-    font-family: var(--data);
-    font-size: 0.62rem;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--ink-3);
-    margin-bottom: 0.65rem;
+  .blank h2 {
+    margin: 0;
+    font-size: 1.6rem;
+    font-weight: 300;
+    letter-spacing: -0.03em;
+    color: #f2f2f0;
+    line-height: 1.1;
   }
-  .verdict { font-size: 0.95rem; line-height: 1.55; }
+  .blank p { margin: 0; max-width: 30rem; font-size: 0.9rem; line-height: 1.6; }
+  .blank hr { width: 3rem; border: 0; border-top: 2px solid var(--accent); margin: 0; }
 
-  .facts { display: flex; flex-direction: column; font-family: var(--data); font-size: 0.7rem; }
-  .facts > div { display: flex; justify-content: space-between; gap: 1rem; padding: 0.24rem 0; border-top: 1px solid var(--hair); }
-  .facts > div:first-child { border-top: 0; }
-  .facts dt { color: var(--ink-3); }
-  .facts dd { margin: 0; text-align: right; }
-  .facts dd.hi { color: var(--accent); }
+  /* ── inspector ── */
+  .verdict { font-size: 1.05rem; line-height: 1.55; font-weight: 400; }
 
-  .score { display: flex; align-items: flex-end; gap: 0.55rem; margin-bottom: 0.6rem; }
-  .score b {
-    font-family: var(--data);
-    font-size: 2.5rem;
+  .tally { display: flex; flex-direction: column; font-family: var(--mono); font-size: 0.74rem; }
+  .tally > div { display: flex; justify-content: space-between; gap: 1rem; padding: 0.35rem 0; border-bottom: 1px solid var(--rule); }
+  .tally > div:last-child { border-bottom: 0; }
+  .tally dt { color: var(--ink-3); }
+  .tally dd { margin: 0; text-align: right; }
+  .tally dd.mark { color: var(--accent); }
+
+  .figure { display: flex; align-items: baseline; gap: 0.8rem; margin-bottom: 1rem; }
+  .figure b {
+    font-family: var(--mono);
+    font-size: 3.2rem;
     font-weight: 500;
-    line-height: 0.82;
-    letter-spacing: -0.035em;
+    line-height: 0.8;
+    letter-spacing: -0.05em;
     font-variant-numeric: tabular-nums;
   }
-  .score i {
-    font-family: var(--data);
+  .figure i {
+    font-family: var(--mono);
     font-style: normal;
-    font-size: 0.62rem;
-    letter-spacing: 0.14em;
+    font-size: 0.66rem;
+    letter-spacing: 0.16em;
     text-transform: uppercase;
-    padding-bottom: 0.15rem;
   }
-  .sums { font-family: var(--data); font-size: 0.7rem; }
-  .sums > div { display: flex; gap: 0.75rem; padding: 0.2rem 0; }
-  .sums .n { width: 3rem; text-align: right; flex: none; font-variant-numeric: tabular-nums; }
-  .sums .w { color: var(--ink-2); line-height: 1.35; }
-  .sums .minus .n { color: var(--bad); }
-  .sums .sum { border-top: 1px solid var(--hair-2); margin-top: 0.25rem; padding-top: 0.3rem; font-weight: 600; }
-  .fine { font-size: 0.7rem; color: var(--ink-3); line-height: 1.45; margin-top: 0.6rem; }
+  .ledger { font-family: var(--mono); font-size: 0.74rem; }
+  .ledger > div { display: flex; gap: 1rem; padding: 0.25rem 0; }
+  .ledger .fig { width: 3.2rem; text-align: right; flex: none; font-variant-numeric: tabular-nums; }
+  .ledger .why { color: var(--ink-2); line-height: 1.4; }
+  .ledger .off .fig { color: var(--bad); }
+  .ledger .net { border-top: 1px solid var(--rule-2); margin-top: 0.4rem; padding-top: 0.4rem; font-weight: 600; }
+  .aside.tight { margin-top: 1rem; }
 
-  .steps { display: flex; flex-direction: column; }
-  .steps > div { border-top: 1px solid var(--hair); padding: 0.55rem 0; }
-  .steps > div:first-child { border-top: 0; padding-top: 0; }
-  .st { display: flex; align-items: baseline; gap: 0.5rem; }
-  .st em { font-family: var(--data); font-style: normal; font-size: 0.62rem; color: var(--ink-3); }
-  .st strong { font-family: var(--data); font-size: 0.75rem; font-weight: 600; }
-  .sa {
-    font-family: var(--data);
-    font-size: 0.64rem;
-    color: var(--ink-3);
-    margin: 0.15rem 0 0 1.05rem;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .so { font-size: 0.78rem; color: var(--ink-2); margin: 0.25rem 0 0 1.05rem; line-height: 1.45; }
+  .run { display: flex; flex-direction: column; }
+  .run > div { border-bottom: 1px solid var(--rule); padding: 0.75rem 0; }
+  .run > div:first-child { padding-top: 0; }
+  .run > div:last-child { border-bottom: 0; padding-bottom: 0; }
+  .op { display: flex; align-items: baseline; gap: 0.7rem; }
+  .op em { font-family: var(--mono); font-style: normal; font-size: 0.68rem; color: var(--accent); }
+  .op strong { font-family: var(--mono); font-size: 0.8rem; font-weight: 600; }
+  .args { font-family: var(--mono); font-size: 0.68rem; color: var(--ink-3); margin: 0.25rem 0 0 1.4rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .said { font-size: 0.85rem; color: var(--ink-2); margin: 0.35rem 0 0 1.4rem; line-height: 1.5; }
 
-  .pdf {
+  .grab {
     display: block;
     text-align: center;
-    border: 1px solid var(--hair-2);
-    padding: 0.42rem;
+    border: 1px solid var(--rule-2);
+    padding: 0.65rem;
     text-decoration: none;
     color: var(--ink);
-    font-family: var(--data);
-    font-size: 0.7rem;
-    letter-spacing: 0.06em;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
+    transition: background 220ms, color 220ms;
   }
-  .pdf:hover { border-color: var(--accent); color: var(--accent); }
+  .grab:hover { background: var(--ink); color: var(--paper); }
 
-  .fail { border-left: 2px solid var(--bad); }
-  .fail .ih { color: var(--bad); }
+  .refused { border-left: 3px solid var(--bad); padding-left: 1rem; }
+  .refused .kicker { color: var(--bad); border-bottom-color: var(--bad); }
 
-  /* ─── status bar ─── */
-  .statusbar {
-    height: var(--statusbar);
+  /* ── footer ── */
+  .foot {
+    height: var(--foot);
     display: flex;
     align-items: center;
-    gap: 1.4rem;
-    padding: 0 0.9rem;
-    border-top: 1px solid var(--hair);
-    background: var(--panel);
-    font-family: var(--data);
-    font-size: 0.63rem;
+    gap: 2rem;
+    padding: 0 var(--gap);
+    background: var(--paper);
+    border-top: 2px solid var(--rule-2);
+    font-family: var(--mono);
+    font-size: 0.68rem;
     color: var(--ink-3);
     white-space: nowrap;
     overflow-x: auto;
   }
-  .statusbar b { color: var(--ink-2); font-weight: 500; }
-  .statusbar .end { margin-left: auto; }
+  .foot b { color: var(--ink); font-weight: 500; }
+  .foot .far { margin-left: auto; }
 
-  @media (max-width: 1100px) {
+  @media (max-width: 1180px) {
     body { overflow: auto; }
-    .frame { grid-template-columns: 1fr; height: auto; }
-    .rail, .inspector { border: 0; border-bottom: 1px solid var(--hair); overflow: visible; }
+    .board { grid-template-columns: 1fr; height: auto; }
+    .col { overflow: visible; }
     .plate { height: 60vh; }
   }
   @media (prefers-reduced-motion: reduce) {
-    .sweepline { animation: none; opacity: 0.3; }
-    .det { animation: none; opacity: 1; }
+    .radar { animation: none; opacity: 0.3; }
+    .hit { animation: none; opacity: 1; }
+    * { transition-duration: 0ms !important; }
   }
 </style>
 </head>
 <body>
 
-<div class="topbar">
-  <div class="wordmark">SatQuery AI</div>
-  <div class="telem" id="telem"><span class="t"><span class="led"></span>connecting</span></div>
-  <button class="ghost" id="theme" type="button">light</button>
-</div>
+<header class="masthead">
+  <div class="mark">SatQuery<span>.</span>AI</div>
+  <div class="rig" id="rig"><span class="sig">connecting</span></div>
+  <button class="swap" id="swap" type="button">dark</button>
+</header>
 
-<div class="frame">
+<div class="board">
 
-  <aside class="rail">
+  <section class="col">
     <form id="form" autocomplete="off">
-      <div class="sec">
-        <div class="sec-h">Primary scene <span class="req">required</span></div>
-        <label class="drop" id="d1"><span id="n1">select image · png jpg tif</span>
+      <div class="block">
+        <div class="kicker">Primary scene <em>required</em></div>
+        <label class="file" id="f1"><span id="n1">select · png jpg tif</span>
           <input id="image1" name="image1" type="file" accept=".png,.jpg,.jpeg,.tif,.tiff" required>
         </label>
         <select id="image1_modality" name="image1_modality" aria-label="Primary scene modality">
@@ -478,38 +514,39 @@
         </select>
       </div>
 
-      <div class="sec">
-        <div class="sec-h">Second scene <span>optional</span></div>
-        <label class="drop" id="d2"><span id="n2">select image</span>
+      <div class="block">
+        <div class="kicker">Second scene <i>optional</i></div>
+        <label class="file" id="f2"><span id="n2">select</span>
           <input id="image2" name="image2" type="file" accept=".png,.jpg,.jpeg,.tif,.tiff">
         </label>
         <select id="image2_modality" name="image2_modality" aria-label="Second scene modality">
           <option value="auto">modality · auto</option><option value="optical">optical</option><option value="sar">SAR</option>
         </select>
-        <div class="note">A second date enables change detection. An SAR view enables optical + radar fusion.</div>
+        <div class="aside">A second date enables change detection. An SAR view enables optical and radar fusion.</div>
       </div>
 
-      <div class="sec">
-        <div class="sec-h">Ground sample distance</div>
+      <div class="block">
+        <div class="kicker">Ground sample distance</div>
         <input id="resolution_m" name="resolution_m" type="number" step="any" min="0" placeholder="metres per pixel">
-        <div class="note">GeoTIFFs carry this. Supply it for a PNG to get hectares rather than percentages alone.</div>
+        <div class="aside">GeoTIFFs carry this. Supply it for a PNG to get hectares rather than percentages alone.</div>
       </div>
 
-      <div class="sec">
-        <div class="sec-h">Query</div>
+      <div class="block">
+        <div class="kicker">Query</div>
         <textarea id="query" name="query" required placeholder="What changed between these two dates?"></textarea>
-        <button type="submit" class="run" id="go">Analyse</button>
+        <button type="submit" class="go" id="go">Analyse</button>
       </div>
     </form>
 
-    <div class="sec">
-      <div class="sec-h">Presets</div>
-      <div class="qlist" id="qlist"></div>
+    <div class="block">
+      <div class="kicker">Presets</div>
+      <div class="preset" id="preset"></div>
     </div>
-  </aside>
+  </section>
 
   <div class="plate" id="plate">
-    <div class="void">
+    <div class="blank">
+      <hr>
       <h2>No scene loaded</h2>
       <p>Select imagery and ask a question in plain English. The agent chooses from six
       analysis tools, runs them in sequence when a question needs more than one, and
@@ -517,42 +554,46 @@
     </div>
   </div>
 
-  <aside class="inspector" id="inspector">
-    <div class="isec">
-      <div class="ih">Method</div>
-      <div class="facts">
+  <section class="col" id="inspector">
+    <div class="block">
+      <div class="kicker">Method</div>
+      <div class="tally">
         <div><dt>vision model</dt><dd>Moondream2 · local</dd></div>
         <div><dt>adaptation</dt><dd>LoRA · BigEarthNet</dd></div>
         <div><dt>orchestration</dt><dd>remote · text only</dd></div>
-        <div><dt>measurement</dt><dd class="hi">deterministic</dd></div>
+        <div><dt>measurement</dt><dd class="mark">deterministic</dd></div>
       </div>
-      <div class="fine">The language model never receives pixels. Every quantity in an answer
-      is produced by a measuring tool and can be reproduced by hand.</div>
+      <div class="aside tight">The language model never receives pixels. Every quantity in an
+      answer is produced by a measuring tool and can be reproduced by hand.</div>
     </div>
-  </aside>
+  </section>
 
 </div>
 
-<div class="statusbar" id="statusbar">
-  <span><b>ready</b></span><span class="end">no job</span>
-</div>
+<footer class="foot" id="foot">
+  <span><b>ready</b></span><span class="far">no job</span>
+</footer>
 
 <script>
 const API = location.origin;
 const $ = (s, r = document) => r.querySelector(s);
 
 /* ── theme ── */
-const tbtn = $("#theme");
+const swap = $("#swap");
 function setTheme(t) {
-  if (t === "light") document.documentElement.setAttribute("data-theme", "light");
+  if (t === "dark") document.documentElement.setAttribute("data-theme", "dark");
   else document.documentElement.removeAttribute("data-theme");
-  tbtn.textContent = t === "light" ? "dark" : "light";
+  swap.textContent = t === "dark" ? "light" : "dark";
   try { localStorage.setItem("sq-theme", t); } catch (e) { /* private mode */ }
 }
-let theme = "dark";
-try { theme = localStorage.getItem("sq-theme") || "dark"; } catch (e) { /* ignore */ }
+// Follow the operating system unless the viewer has chosen. Hardcoding light
+// makes Chrome's auto dark mode repaint the page with its own inversion, which
+// destroys the colour relationships the analysis overlays depend on.
+const osDark = matchMedia("(prefers-color-scheme: dark)").matches;
+let theme = osDark ? "dark" : "light";
+try { theme = localStorage.getItem("sq-theme") || theme; } catch (e) { /* ignore */ }
 setTheme(theme);
-tbtn.onclick = () => { theme = theme === "light" ? "dark" : "light"; setTheme(theme); };
+swap.onclick = () => { theme = theme === "dark" ? "light" : "dark"; setTheme(theme); };
 
 /* ── presets ── */
 const PRESETS = [
@@ -562,61 +603,61 @@ const PRESETS = [
   "What changed between these two dates?",
   "How many houses are in this image?",
 ];
-$("#qlist").innerHTML = PRESETS.map(q => `<button type="button">${esc(q)}</button>`).join("");
-$("#qlist").onclick = e => {
+$("#preset").innerHTML = PRESETS.map((q, i) =>
+  `<button type="button" data-n="${String(i + 1).padStart(2, "0")}"><span>${esc(q)}</span></button>`).join("");
+$("#preset").onclick = e => {
   const b = e.target.closest("button");
-  if (b) { $("#query").value = b.textContent; $("#query").focus(); }
+  if (b) { $("#query").value = b.textContent.trim(); $("#query").focus(); }
 };
 
-/* ── filename feedback ── */
-[["#image1", "#d1", "#n1", "select image · png jpg tif"],
- ["#image2", "#d2", "#n2", "select image"]].forEach(([inp, box, name, blank]) => {
+/* ── file labels ── */
+[["#image1", "#f1", "#n1", "select · png jpg tif"],
+ ["#image2", "#f2", "#n2", "select"]].forEach(([inp, box, name, blank]) => {
   $(inp).onchange = () => {
     const f = $(inp).files[0];
-    $(box).classList.toggle("filled", !!f);
+    $(box).classList.toggle("set", !!f);
     $(name).textContent = f ? f.name : blank;
   };
 });
 
-/* ── telemetry ── */
+/* ── rig telemetry ── */
 fetch(API + "/api/health").then(r => r.json()).then(h => {
   const provs = Object.entries(h.providers_ok || {})
-    .map(([n, ok]) => `<span class="t"><span class="led ${ok ? "on" : "off"}"></span>${esc(n)}</span>`).join("");
-  $("#telem").innerHTML =
-    `<span class="t"><span class="led ${h.gpu_available ? "on" : "off"}"></span>${esc(h.gpu_available ? shortGpu(h.gpu_name) : "cpu only")}</span>`
+    .map(([n, ok]) => `<span class="sig ${ok ? "up" : "down"}">${esc(n)}</span>`).join("");
+  $("#rig").innerHTML =
+    `<span class="sig ${h.gpu_available ? "up" : "down"}">${esc(h.gpu_available ? gpuName(h.gpu_name) : "cpu only")}</span>`
     + provs
-    + `<span class="t"><span class="led ${h.lora_adapter_loaded ? "on" : "off"}"></span>adapter</span>`;
+    + `<span class="sig ${h.lora_adapter_loaded ? "up" : "down"}">adapter</span>`;
 }).catch(() => {
-  $("#telem").innerHTML = `<span class="t"><span class="led off"></span>backend unreachable</span>`;
+  $("#rig").innerHTML = `<span class="sig down">backend unreachable</span>`;
 });
-function shortGpu(n) { return String(n).replace(/NVIDIA GeForce /i, "").replace(/ Laptop GPU/i, ""); }
+function gpuName(n) { return String(n).replace(/NVIDIA GeForce /i, "").replace(/ Laptop GPU/i, ""); }
 
-/* ── status bar ── */
-function status(state, detail, end) {
-  $("#statusbar").innerHTML =
-    `<span><b>${esc(state)}</b></span>`
-    + (detail ? `<span>${detail}</span>` : "")
-    + `<span class="end">${end || "no job"}</span>`;
+/* ── footer ── */
+function foot(state, mid, far) {
+  $("#foot").innerHTML = `<span><b>${esc(state)}</b></span>`
+    + (mid ? `<span>${mid}</span>` : "")
+    + `<span class="far">${far || "no job"}</span>`;
 }
 
 /* ── submit ── */
 $("#form").onsubmit = async e => {
   e.preventDefault();
   $("#go").disabled = true;
-  showScanning(e.target.image1.files[0]);
+  scanning(e.target.image1.files[0]);
   try {
     const res = await fetch(API + "/api/analyze", { method: "POST", body: new FormData(e.target) });
     const body = await res.json();
     if (!res.ok) throw new Error(body.detail || res.statusText);
     paint(body);
   } catch (err) {
-    clearInterval(showScanning.t);
-    $("#plate").innerHTML = `<div class="void"><h2>Input rejected</h2><p>${esc(err.message)}</p></div>`;
-    $("#inspector").innerHTML = `<div class="isec fail"><div class="ih">Validation</div>
+    clearInterval(scanning.t);
+    $("#plate").innerHTML = `<div class="blank"><hr><h2>Input rejected</h2><p>${esc(err.message)}</p></div>`;
+    $("#inspector").innerHTML = `<div class="block refused"><div class="kicker">Validation</div>
       <div class="verdict">${esc(err.message)}</div>
-      <div class="fine">Validation runs before analysis. A refusal is designed behaviour —
+      <div class="aside tight">Validation runs before analysis. A refusal is designed behaviour —
       the system does not guess its way past an input it cannot handle.</div></div>`;
-    status("rejected", "", "no job");
+    foot("rejected", "", "no job");
   } finally {
     $("#go").disabled = false;
   }
@@ -624,29 +665,29 @@ $("#form").onsubmit = async e => {
 
 /* ── scanning ── */
 let objUrl = null;
-function showScanning(file) {
+function scanning(file) {
   if (objUrl) URL.revokeObjectURL(objUrl);
   objUrl = file && /\.(png|jpe?g)$/i.test(file.name) ? URL.createObjectURL(file) : null;
   $("#plate").innerHTML =
-    (objUrl ? `<img src="${objUrl}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;opacity:0.38">`
-            : `<div class="void"><h2>Analysing</h2></div>`)
-    + `<div class="sweepline"></div>`;
-  $("#inspector").innerHTML = `<div class="isec"><div class="ih">Working</div>
-    <div class="fine">The first analysis takes about 40 seconds while the vision model loads
-    onto the GPU. Subsequent runs take 5 to 20 seconds.</div></div>`;
+    (objUrl ? `<img src="${objUrl}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;opacity:0.35">`
+            : `<div class="blank"><hr><h2>Analysing</h2></div>`)
+    + `<div class="radar"></div>`;
+  $("#inspector").innerHTML = `<div class="block"><div class="kicker">Working</div>
+    <div class="aside" style="margin-top:0">The first analysis takes about 40 seconds while the
+    vision model loads onto the GPU. Subsequent runs take 5 to 20 seconds.</div></div>`;
   const phases = ["dispatching to agent", "executing tools", "measuring", "composing answer"];
   let i = 0;
-  status("analysing", phases[0], "no job");
-  clearInterval(showScanning.t);
-  showScanning.t = setInterval(() => {
-    if (!$(".sweepline")) return clearInterval(showScanning.t);
+  foot("analysing", phases[0], "no job");
+  clearInterval(scanning.t);
+  scanning.t = setInterval(() => {
+    if (!$(".radar")) return clearInterval(scanning.t);
     i = Math.min(i + 1, phases.length - 1);
-    status("analysing", phases[i], "no job");
+    foot("analysing", phases[i], "no job");
   }, 6000);
 }
 
-/* ── legends ── */
-const KEY = {
+/* ── swatches ── */
+const SWATCH = {
   run_land_cover: [["vegetation", "var(--veg)"], ["water", "var(--water)"], ["built-up / bare", "var(--built)"]],
   run_fusion_analysis: [["water · agreed", "var(--water)"], ["built-up · agreed", "var(--built)"], ["vegetation", "var(--veg)"]],
   run_change_analysis: [["detected change", "var(--bad)"]],
@@ -654,110 +695,110 @@ const KEY = {
 };
 
 function paint(r) {
-  clearInterval(showScanning.t);
+  clearInterval(scanning.t);
   const ev = r.visual_evidence || {}, prof = r.input_profiles || {};
   const base = ev.image1_url || ev.overlay_png_url;
-  const dual = !!(ev.image1_url && ev.overlay_png_url);
-  const dets = ev.boxes || [];
-  const key = KEY[r.task_classified] || [];
-  const grade = r.confidence >= 0.8 ? ["high", "var(--ok)"]
-              : r.confidence >= 0.6 ? ["moderate", "var(--warn)"]
-              : ["low", "var(--bad)"];
+  const both = !!(ev.image1_url && ev.overlay_png_url);
+  const hits = ev.boxes || [];
+  const sw = SWATCH[r.task_classified] || [];
+  const tier = r.confidence >= 0.8 ? ["high", "var(--ok)"]
+             : r.confidence >= 0.6 ? ["moderate", "var(--warn)"]
+             : ["low", "var(--bad)"];
 
   $("#plate").innerHTML = base ? `
     <div class="stage" id="stage">
-      <img class="base" id="basefig" src="${API + base}" alt="Analysed scene">
-      ${dual ? `<div class="reveal" id="reveal"><img src="${API + ev.overlay_png_url}" alt="Annotated output"></div>` : ""}
-      <div id="dets"></div>
+      <img class="fig" id="fig" src="${API + base}" alt="Analysed scene">
+      ${both ? `<div class="peel" id="peel"><img src="${API + ev.overlay_png_url}" alt="Annotated output"></div>` : ""}
+      <div id="hits"></div>
     </div>
-    ${dual ? `<div class="split" id="split" hidden></div>` : ""}
-    ${key.length ? `<div class="keyline">${key.map(([t, c]) =>
+    ${both ? `<div class="seam" id="seam" hidden></div>` : ""}
+    ${sw.length ? `<div class="swatchbar">${sw.map(([t, c]) =>
        `<span><i style="background:${c}"></i>${esc(t)}</span>`).join("")}</div>` : ""}
-    <div class="tools">
+    <div class="rig-tools">
       <button type="button" data-z="out" aria-label="Zoom out">−</button>
       <button type="button" data-z="in" aria-label="Zoom in">+</button>
       <button type="button" data-z="fit">fit</button>
-      <button type="button" id="cmp" aria-pressed="false" ${dual ? "" : "disabled"}>compare</button>
-      <button type="button" id="swp" ${dual ? "" : "disabled"}>sweep</button>
+      <button type="button" id="cmp" aria-pressed="false" ${both ? "" : "disabled"}>compare</button>
+      <button type="button" id="swp" ${both ? "" : "disabled"}>sweep</button>
     </div>
-    <div class="readout" id="readout"></div>`
-  : `<div class="void"><h2>Source not displayable</h2>
+    <div class="gauge" id="gauge"></div>`
+  : `<div class="blank"><hr><h2>Source not displayable</h2>
      <p>The scene was analysed, but a GeoTIFF carries more spectral bands than a browser
      can draw. The measurements alongside are unaffected.</p></div>`;
 
   $("#inspector").innerHTML = `
-    <div class="isec">
-      <div class="ih">Answer</div>
+    <div class="block">
+      <div class="kicker">Answer</div>
       <div class="verdict">${esc(r.answer ?? "")}</div>
     </div>
 
-    <div class="isec">
-      <div class="ih">Confidence</div>
-      <div class="score" style="color:${grade[1]}"><b>${r.confidence.toFixed(2)}</b><i>${grade[0]}</i></div>
-      <div class="sums">
-        <div><span class="n">${(r.confidence_base ?? 0.85).toFixed(2)}</span><span class="w">base</span></div>
+    <div class="block">
+      <div class="kicker">Confidence</div>
+      <div class="figure" style="color:${tier[1]}"><b>${r.confidence.toFixed(2)}</b><i>${tier[0]}</i></div>
+      <div class="ledger">
+        <div><span class="fig">${(r.confidence_base ?? 0.85).toFixed(2)}</span><span class="why">base</span></div>
         ${(r.confidence_deductions || (r.confidence_reasons || []).map(reason => ({ amount: null, reason })))
-          .map(d => `<div class="minus"><span class="n">${d.amount == null ? "−" : "−" + d.amount.toFixed(2)}</span><span class="w">${esc(d.reason)}</span></div>`).join("")}
-        <div class="sum"><span class="n">${r.confidence.toFixed(2)}</span><span class="w">stated</span></div>
+          .map(d => `<div class="off"><span class="fig">${d.amount == null ? "−" : "−" + d.amount.toFixed(2)}</span><span class="why">${esc(d.reason)}</span></div>`).join("")}
+        <div class="net"><span class="fig">${r.confidence.toFixed(2)}</span><span class="why">stated</span></div>
       </div>
-      <div class="fine">Not a self-assessment. A base score with named deductions for conditions
-      detected in the data, each shipped in the response and the report.</div>
+      <div class="aside tight">Not a self-assessment. A base score with named deductions for
+      conditions detected in the data, each shipped in the response and the report.</div>
     </div>
 
-    <div class="isec">
-      <div class="ih">Execution</div>
-      <div class="steps">
+    <div class="block">
+      <div class="kicker">Execution</div>
+      <div class="run">
         ${(r.execution_trace || []).map(s => `
           <div>
-            <div class="st"><em>${esc(String(s.step))}</em><strong>${esc(s.tool)}</strong></div>
-            <div class="sa" title="${esc(JSON.stringify(s.parameters))}">${esc(JSON.stringify(s.parameters))}</div>
-            <div class="so">${esc(s.output_summary)}</div>
+            <div class="op"><em>${esc(String(s.step).padStart(2, "0"))}</em><strong>${esc(s.tool)}</strong></div>
+            <div class="args" title="${esc(JSON.stringify(s.parameters))}">${esc(JSON.stringify(s.parameters))}</div>
+            <div class="said">${esc(s.output_summary)}</div>
           </div>`).join("")}
       </div>
     </div>
 
-    <div class="isec">
-      <div class="ih">Input</div>
-      <div class="facts">
-        ${fact("primary", prof.profile1 ? `${prof.profile1.width}×${prof.profile1.height} · ${prof.profile1.band_count}b · ${prof.profile1.modality}` : "—")}
-        ${prof.profile2 ? fact("second", `${prof.profile2.width}×${prof.profile2.height} · ${prof.profile2.band_count}b · ${prof.profile2.modality}`) : ""}
-        ${fact("pair", prof.pair?.pair_type ?? "none")}
-        ${fact("validated", prof.pair?.compatible ? "passed" : (prof.pair?.reason ?? "failed"))}
-        ${dets.length ? fact("detections", `${dets.length} × ${ev.label || "match"}`) : ""}
+    <div class="block">
+      <div class="kicker">Input</div>
+      <div class="tally">
+        ${line("primary", prof.profile1 ? `${prof.profile1.width}×${prof.profile1.height} · ${prof.profile1.band_count}b · ${prof.profile1.modality}` : "—")}
+        ${prof.profile2 ? line("second", `${prof.profile2.width}×${prof.profile2.height} · ${prof.profile2.band_count}b · ${prof.profile2.modality}`) : ""}
+        ${line("pair", prof.pair?.pair_type ?? "none")}
+        ${line("validated", prof.pair?.compatible ? "passed" : (prof.pair?.reason ?? "failed"))}
+        ${hits.length ? line("detections", `${hits.length} × ${ev.label || "match"}`) : ""}
       </div>
     </div>
 
-    <div class="isec"><a class="pdf" href="${API + r.report_url}" target="_blank" rel="noopener">Download report</a></div>`;
+    <div class="block"><a class="grab" href="${API + r.report_url}" target="_blank" rel="noopener">Download report</a></div>`;
 
-  status("complete", `tool <b>${esc(r.task_classified)}</b>`,
+  foot("complete", `tool <b>${esc(r.task_classified)}</b>`,
     `<b>${esc(r.llm_provider)}</b> · ${r.elapsed_seconds}s · ${esc(r.job_id)}`);
 
-  if (base) mountPlate(ev);
+  if (base) mount(ev);
 }
 
-function fact(k, v) { return `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`; }
+function line(k, v) { return `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`; }
 
 /* ── plate interaction ── */
-function mountPlate(ev) {
-  const plate = $("#plate"), stage = $("#stage"), fig = $("#basefig");
-  const split = $("#split"), reveal = $("#reveal"), readout = $("#readout");
-  const dets = ev.boxes || [], space = ev.image_size || null;
-  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+function mount(ev) {
+  const plate = $("#plate"), stage = $("#stage"), fig = $("#fig");
+  const seam = $("#seam"), peel = $("#peel"), gauge = $("#gauge");
+  const hits = ev.boxes || [], space = ev.image_size || null;
+  const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
   let k = 1, tx = 0, ty = 0, W = 0, H = 0, cmp = false, cut = 0;
 
   function draw() {
     stage.style.transform = `translate(${tx}px, ${ty}px) scale(${k})`;
-    if (readout) readout.innerHTML = `${Math.round(k * 100)}%<br>${W} × ${H} px`;
-    stage.querySelectorAll(".det").forEach(d => {
+    if (gauge) gauge.innerHTML = `${Math.round(k * 100)}%<br>${W} × ${H} px`;
+    stage.querySelectorAll(".hit").forEach(d => {
       d.firstElementChild.style.transform = `scale(${1 / k})`;
-      // A label needs room on screen, not merely a visible box.
-      d.classList.toggle("mute", d.offsetWidth * k < 34);
+      // A label needs room of its own, not merely a visible box.
+      d.classList.toggle("bare", d.offsetWidth * k < 34);
     });
-    if (split && cmp) split.style.left = (tx + W * k * cut) + "px";
+    if (seam && cmp) seam.style.left = (tx + W * k * cut) + "px";
   }
   function fit() {
     const r = plate.getBoundingClientRect();
-    k = Math.min(r.width / W, r.height / H) * 0.94;
+    k = Math.min(r.width / W, r.height / H) * 0.9;
     tx = (r.width - W * k) / 2;
     ty = (r.height - H * k) / 2;
     draw();
@@ -774,20 +815,19 @@ function mountPlate(ev) {
     W = fig.naturalWidth; H = fig.naturalHeight;
     stage.style.width = W + "px";
     stage.style.height = H + "px";
-    if (dets.length) {
+    if (hits.length) {
       const sx = space ? W / space[0] : 1, sy = space ? H / space[1] : 1;
-      $("#dets").innerHTML = dets.map(([a, b, c, d], i) =>
-        `<div class="det" style="left:${a * sx}px;top:${b * sy}px;width:${(c - a) * sx}px;height:${(d - b) * sy}px;
-          animation-delay:${reduce ? 0 : Math.min(i * 26, 800)}ms"><b>${esc(ev.label || "match")}</b></div>`).join("");
+      $("#hits").innerHTML = hits.map(([a, b, c, d], i) =>
+        `<div class="hit" style="left:${a * sx}px;top:${b * sy}px;width:${(c - a) * sx}px;height:${(d - b) * sy}px;
+          animation-delay:${still ? 0 : Math.min(i * 26, 800)}ms"><b>${esc(ev.label || "match")}</b></div>`).join("");
     }
     fit();
   };
   if (fig.complete && fig.naturalWidth) fig.onload();
 
-  /* pan */
   let down = false, px = 0, py = 0;
   plate.addEventListener("pointerdown", e => {
-    if (e.target.closest(".tools") || e.target.closest(".split")) return;
+    if (e.target.closest(".rig-tools") || e.target.closest(".seam")) return;
     down = true; px = e.clientX; py = e.clientY; plate.setPointerCapture(e.pointerId);
   });
   plate.addEventListener("pointermove", e => {
@@ -804,7 +844,7 @@ function mountPlate(ev) {
     zoom(e.clientX - r.left, e.clientY - r.top, e.deltaY < 0 ? 1.16 : 1 / 1.16);
   }, { passive: false });
   plate.addEventListener("dblclick", e => {
-    if (e.target.closest(".tools")) return;
+    if (e.target.closest(".rig-tools")) return;
     const r = plate.getBoundingClientRect();
     zoom(e.clientX - r.left, e.clientY - r.top, 1.9);
   });
@@ -814,39 +854,38 @@ function mountPlate(ev) {
     else zoom(r.width / 2, r.height / 2, b.dataset.z === "in" ? 1.45 : 1 / 1.45);
   });
 
-  /* compare */
   function setCut(v) {
     cut = Math.min(1, Math.max(0, v));
-    if (reveal) reveal.style.clipPath = `inset(0 ${(1 - cut) * 100}% 0 0)`;
-    if (split) split.style.left = (tx + W * k * cut) + "px";
+    if (peel) peel.style.clipPath = `inset(0 ${(1 - cut) * 100}% 0 0)`;
+    if (seam) seam.style.left = (tx + W * k * cut) + "px";
   }
   // Hidden until compare is switched on: the overlay already carries drawn
   // annotation, so showing it under the live detections doubles every box.
-  if (reveal) reveal.style.clipPath = "inset(0 100% 0 0)";
+  if (peel) peel.style.clipPath = "inset(0 100% 0 0)";
 
   const cmpBtn = $("#cmp");
   if (cmpBtn) cmpBtn.onclick = () => {
     cmp = !cmp;
     cmpBtn.setAttribute("aria-pressed", String(cmp));
-    split.hidden = !cmp;
+    seam.hidden = !cmp;
     setCut(cmp ? 0.5 : 0);
   };
-  if (split) {
+  if (seam) {
     let dv = false;
-    split.addEventListener("pointerdown", e => { dv = true; e.stopPropagation(); split.setPointerCapture(e.pointerId); });
-    split.addEventListener("pointermove", e => {
+    seam.addEventListener("pointerdown", e => { dv = true; e.stopPropagation(); seam.setPointerCapture(e.pointerId); });
+    seam.addEventListener("pointermove", e => {
       if (!dv) return;
       const r = plate.getBoundingClientRect();
       setCut((e.clientX - r.left - tx) / (W * k));
     });
-    split.addEventListener("pointerup", e => {
+    seam.addEventListener("pointerup", e => {
       dv = false;
-      try { split.releasePointerCapture(e.pointerId); } catch (err) { /* already released */ }
+      try { seam.releasePointerCapture(e.pointerId); } catch (err) { /* already released */ }
     });
-    split.tabIndex = 0;
-    split.setAttribute("role", "slider");
-    split.setAttribute("aria-label", "Reveal annotated output");
-    split.onkeydown = e => {
+    seam.tabIndex = 0;
+    seam.setAttribute("role", "slider");
+    seam.setAttribute("aria-label", "Reveal annotated output");
+    seam.onkeydown = e => {
       if (e.key === "ArrowLeft") { setCut(cut - 0.02); e.preventDefault(); }
       if (e.key === "ArrowRight") { setCut(cut + 0.02); e.preventDefault(); }
     };
@@ -854,7 +893,7 @@ function mountPlate(ev) {
   const swp = $("#swp");
   if (swp) swp.onclick = () => {
     if (!cmp) cmpBtn.click();
-    if (reduce) { setCut(1); return; }
+    if (still) { setCut(1); return; }
     const t0 = performance.now(), dur = 2100;
     setCut(0);
     (function tick(now) {
