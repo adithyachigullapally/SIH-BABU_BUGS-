@@ -319,10 +319,15 @@
     width: 20%;
     z-index: 7;
     pointer-events: none;
+    left: 0;
     background: linear-gradient(90deg, transparent, rgba(214,0,110,0.06) 55%, rgba(214,0,110,0.6) 97%, #fff);
     animation: pass 1.3s linear infinite;
+    will-change: transform;
   }
-  @keyframes pass { from { left: -22%; } to { left: 102%; } }
+  /* Translated, not offset: animating `left` relayouts every frame while the
+     GPU is already busy running the model. The element is 20% of the plate, so
+     these percentages of its own width span -22% to 102% of the plate. */
+  @keyframes pass { from { transform: translateX(-110%); } to { transform: translateX(510%); } }
 
   .rig-tools {
     position: absolute;
@@ -779,7 +784,14 @@ function paint(r) {
 function line(k, v) { return `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`; }
 
 /* ── plate interaction ── */
+// paint() replaces the plate's children but not the plate itself, so its pan
+// and zoom handlers — and the window resize handler — would accumulate one set
+// per analysis. One controller per mount, aborted on the next.
+let plateHandlers = null;
 function mount(ev) {
+  if (plateHandlers) plateHandlers.abort();
+  plateHandlers = new AbortController();
+  const on = { signal: plateHandlers.signal };
   const plate = $("#plate"), stage = $("#stage"), fig = $("#fig");
   const seam = $("#seam"), peel = $("#peel"), gauge = $("#gauge");
   const hits = ev.boxes || [], space = ev.image_size || null;
@@ -829,25 +841,25 @@ function mount(ev) {
   plate.addEventListener("pointerdown", e => {
     if (e.target.closest(".rig-tools") || e.target.closest(".seam")) return;
     down = true; px = e.clientX; py = e.clientY; plate.setPointerCapture(e.pointerId);
-  });
+  }, on);
   plate.addEventListener("pointermove", e => {
     if (!down) return;
     tx += e.clientX - px; ty += e.clientY - py; px = e.clientX; py = e.clientY; draw();
-  });
+  }, on);
   plate.addEventListener("pointerup", e => {
     down = false;
     try { plate.releasePointerCapture(e.pointerId); } catch (err) { /* already released */ }
-  });
+  }, on);
   plate.addEventListener("wheel", e => {
     e.preventDefault();
     const r = plate.getBoundingClientRect();
     zoom(e.clientX - r.left, e.clientY - r.top, e.deltaY < 0 ? 1.16 : 1 / 1.16);
-  }, { passive: false });
+  }, { passive: false, signal: plateHandlers.signal });
   plate.addEventListener("dblclick", e => {
     if (e.target.closest(".rig-tools")) return;
     const r = plate.getBoundingClientRect();
     zoom(e.clientX - r.left, e.clientY - r.top, 1.9);
-  });
+  }, on);
   plate.querySelectorAll("[data-z]").forEach(b => b.onclick = () => {
     const r = plate.getBoundingClientRect();
     if (b.dataset.z === "fit") fit();
@@ -903,7 +915,7 @@ function mount(ev) {
     })(t0);
   };
 
-  addEventListener("resize", () => { if (W) fit(); });
+  addEventListener("resize", () => { if (W) fit(); }, on);
 }
 
 function esc(s) {
