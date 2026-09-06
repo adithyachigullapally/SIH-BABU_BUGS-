@@ -3,647 +3,514 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="color-scheme" content="dark">
+<meta name="color-scheme" content="light">
 <title>SatQuery AI</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caprasimo&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
 <style>
-  /* Technical-precision GIS instrument. Palette and type from the Stitch
-     design; every field on screen is bound to a real API value — nothing is
-     shown that the backend did not measure. */
+  /* Design system from the Claude Design canvas: warm neutral ground, clay and
+     sage accents on one shared OKLCH lightness scale, Caprasimo headings over
+     Figtree body, JetBrains Mono for every figure. */
   :root {
-    --bg:        #080b0e;
-    --surface:   #0d1117;
-    --surface2:  #121720;
-    --edge:      #1b222d;
-    --edge2:     #263142;
-    --cyan:      #06b6d4;
-    --teal:      #14b8a6;
-    --emerald:   #10b981;
-    --amber:     #f59e0b;
-    --red:       #f43f5e;
-    --violet:    #8b5cf6;
-    --text:      #cbd5e1;
-    --dim:       #64748b;
-    --dimmer:    #475569;
-    --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
-    --sans: "Space Grotesk", system-ui, sans-serif;
+    color-scheme: light;
+    --bg:       #f5ead8;
+    --surface:  #ebddc5;
+    --text:     #201e1d;
+    --accent:   #c67139;
+    --accent-2: #7a8a5e;
+    --divider:  color-mix(in srgb, #201e1d 16%, transparent);
+
+    --n-100: #f9f4ed; --n-200: #eee7db; --n-300: #dcd3c4; --n-400: #c0b6a5;
+    --n-500: #a19786; --n-600: #82796a; --n-700: #645c50; --n-800: #474238;
+    --n-900: #2e2b25;
+
+    --a-100: #fff2eb; --a-200: #ffe1d0; --a-400: #f6a06b; --a-600: #b2622d;
+    --a-700: #8c491a;
+    --g-100: #f0fae1; --g-200: #e1eecc; --g-400: #aebf92; --g-600: #728157;
+    --g-700: #56633f;
+    --warn:  #8a6d1f;
+    --danger:#8c3f33;
+
+    --font-heading: "Caprasimo", Georgia, serif;
+    --font-body: "Figtree", system-ui, sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+    --space-1: 4.4px; --space-2: 8.8px; --space-3: 13.2px;
+    --space-4: 17.6px; --space-6: 26.4px; --space-8: 35.2px;
+
+    --radius-sm: 8px; --radius-md: 16px; --radius-lg: 28px;
+
+    --shadow-sm: 0 1px 2px color-mix(in srgb, #2e2b25 14%, transparent);
+    --shadow-md: 0 3px 10px color-mix(in srgb, #2e2b25 16%, transparent);
+    --shadow-lg: 0 12px 32px color-mix(in srgb, #2e2b25 22%, transparent);
   }
 
-  * { box-sizing: border-box; border-radius: 0 !important; box-shadow: none !important; }
-  html, body { height: 100%; }
+  *, *::before, *::after { box-sizing: border-box; }
   body {
     margin: 0;
     background: var(--bg);
     color: var(--text);
-    font-family: var(--mono);
-    font-size: 11px;
-    line-height: 1.5;
-    overflow: hidden;
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.55;
     -webkit-font-smoothing: antialiased;
   }
+  h1, h2, h3, h4 {
+    font-family: var(--font-heading);
+    font-weight: 400;
+    line-height: 1.12;
+    letter-spacing: -0.015em;
+    margin: 0 0 var(--space-2);
+  }
+  h1 { font-size: 42px; }
+  h2 { font-size: 32px; }
+  h3 { font-size: 25px; }
+  h4 { font-size: 20px; }
   button, input, select, textarea { font: inherit; color: inherit; }
-  button, label.pick, a { cursor: pointer; }
-  :focus-visible { outline: 1px solid var(--cyan); outline-offset: 1px; }
-  ::-webkit-scrollbar { width: 4px; height: 4px; }
-  ::-webkit-scrollbar-track { background: var(--bg); }
-  ::-webkit-scrollbar-thumb { background: var(--edge2); }
+  button, label.drop, a { cursor: pointer; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-thumb { background: var(--divider); border-radius: 8px; }
 
-  .lbl {
-    font-size: 9px;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--dim);
-  }
-  .val { color: var(--text); }
-  .cy { color: var(--cyan); }
-  .em { color: var(--emerald); }
-  .am { color: var(--amber); }
-  .rd { color: var(--red); }
-  .vi { color: var(--violet); }
-  .num { font-variant-numeric: tabular-nums; }
+  .mono { font-family: var(--font-mono); }
+  .num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+  .quiet { color: var(--n-600); }
 
-  /* ── telemetry strip ── */
-  .telem {
+  /* ── header ── */
+  header {
     display: flex;
-    align-items: stretch;
-    border-bottom: 1px solid var(--edge);
-    background: var(--surface);
-    overflow-x: auto;
-    height: 2.6rem;
-    flex: none;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+    padding: var(--space-3) var(--space-4);
+    border-bottom: 1px solid var(--divider);
   }
-  .cell {
+  .wordmark { display: flex; align-items: baseline; gap: 10px; }
+  .wordmark span:first-child { font-family: var(--font-heading); font-size: 21px; }
+  .wordmark span:last-child { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.03em; color: var(--n-600); }
+  .rig { display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; font-size: 12px; color: var(--n-700); }
+  .rig b { font-family: var(--font-mono); font-weight: 500; color: var(--text); }
+  .brains { display: flex; align-items: center; gap: 6px; }
+  .brain { display: inline-flex; align-items: center; gap: 4px; font-family: var(--font-mono); font-size: 11px; color: var(--n-600); }
+  .brain i { width: 6px; height: 6px; border-radius: 50%; background: var(--n-400); }
+  .brain.up i { background: var(--accent-2); }
+  .brain.down i { background: var(--danger); }
+
+  .tag {
+    display: inline-block;
+    border-radius: 999px;
+    padding: 2px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    background: var(--n-200);
+    color: var(--n-700);
+  }
+  .tag-accent { background: var(--a-200); color: var(--a-700); }
+  .tag-accent-2 { background: var(--g-200); color: var(--g-700); }
+
+  /* ── layout ── */
+  .sq-main {
+    display: grid;
+    grid-template-columns: 20rem minmax(0, 1fr);
+    min-height: calc(100vh - 60px);
+  }
+  .sq-rail { border-right: 1px solid var(--divider); padding: var(--space-4); }
+  .sq-work { padding: var(--space-4); display: flex; flex-direction: column; gap: var(--space-4); min-width: 0; }
+  @media (max-width: 900px) {
+    .sq-main { grid-template-columns: 1fr; }
+    .sq-rail { border-right: none; border-bottom: 1px solid var(--divider); }
+  }
+
+  /* ── form ── */
+  form { display: flex; flex-direction: column; gap: var(--space-4); }
+  .field { display: flex; flex-direction: column; gap: var(--space-2); }
+  .field > label:first-child { font-size: 13px; font-weight: 600; }
+  .field > label:first-child span { color: var(--accent); }
+  .field p { margin: 0; font-size: 12px; color: var(--n-600); line-height: 1.45; }
+
+  .drop {
+    display: grid;
+    place-items: center;
+    text-align: center;
+    min-height: 74px;
+    padding: var(--space-3);
+    border: 1.5px dashed var(--n-400);
+    border-radius: var(--radius-md);
+    background: var(--n-100);
+    font-size: 13px;
+    color: var(--n-600);
+    transition: border-color 180ms, background 180ms, color 180ms;
+  }
+  .drop:hover, .drop.over { border-color: var(--accent); background: var(--a-100); color: var(--a-700); }
+  .drop.filled { border-style: solid; border-color: var(--accent-2); background: var(--g-100); color: var(--g-700); font-family: var(--font-mono); font-size: 12px; }
+  .drop input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+  .drop .thumb { width: 100%; display: flex; align-items: center; gap: var(--space-2); }
+  .drop .thumb img { width: 38px; height: 38px; object-fit: cover; border-radius: var(--radius-sm); flex: none; }
+  .drop .thumb span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  .input {
+    width: 100%;
+    background: var(--n-100);
+    border: 1px solid var(--n-300);
+    border-radius: 999px;
+    padding: 9px 14px;
+    font-size: 14px;
+  }
+  select.input { padding-right: 10px; }
+  textarea.input { border-radius: var(--radius-md); min-height: 90px; resize: vertical; line-height: 1.5; }
+  ::placeholder { color: var(--n-500); }
+
+  .btn {
+    border: 0;
+    border-radius: 999px;
+    padding: 10px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: filter 180ms, background 180ms;
+  }
+  .btn-primary { background: var(--accent); color: var(--bg); }
+  .btn-primary:hover:not(:disabled) { filter: brightness(1.08); }
+  .btn-primary:disabled { background: var(--n-300); color: var(--n-600); cursor: progress; }
+  .btn-block { width: 100%; }
+  .btn-ghost { background: transparent; border: 1px solid var(--n-300); color: var(--n-700); padding: 5px 12px; font-size: 12px; }
+  .btn-ghost:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+  .btn-ghost[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+  .btn-ghost:disabled { opacity: 0.45; cursor: not-allowed; }
+
+  /* ── cards ── */
+  .card {
+    background: var(--n-100);
+    border-radius: var(--radius-lg);
+    padding: var(--space-4) var(--space-6);
+    box-shadow: var(--shadow-sm);
+  }
+  .card.plain { padding: var(--space-4); }
+  .card-h { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); flex-wrap: wrap; margin-bottom: var(--space-3); }
+  .card-h h4 { margin: 0; }
+  .eyebrow { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--n-600); }
+
+  /* ── idle ── */
+  .idle { display: flex; flex-direction: column; gap: var(--space-4); }
+  .idle p { margin: 0; max-width: 46ch; color: var(--n-700); }
+  .examples { display: grid; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); gap: var(--space-3); }
+  .ex {
+    text-align: left;
+    background: var(--surface);
+    border: 0;
+    border-radius: var(--radius-md);
+    padding: var(--space-3) var(--space-4);
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    gap: 1px;
-    padding: 0 0.75rem;
-    border-right: 1px solid var(--edge);
-    white-space: nowrap;
-    flex: none;
+    gap: 4px;
+    transition: transform 180ms, box-shadow 180ms;
   }
-  .cell .k { font-size: 8px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dimmer); }
-  .cell .v { font-size: 10.5px; font-weight: 500; }
-  .cell.brand .v { font-family: var(--sans); font-weight: 700; font-size: 13px; letter-spacing: -0.01em; color: #fff; }
-  .cell.last { border-right: 0; margin-left: auto; }
-  .beacon::before {
-    content: "";
-    display: inline-block;
-    width: 5px; height: 5px;
-    background: currentColor;
-    margin-right: 5px;
-    vertical-align: 1px;
-    animation: pulse 2.4s ease-in-out infinite;
-  }
-  @keyframes pulse { 0%,100% { opacity: 0.9; } 50% { opacity: 0.3; } }
+  .ex:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+  .ex b { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--a-700); font-weight: 600; }
+  .ex span { font-size: 14px; line-height: 1.4; }
 
-  /* ── shell ── */
-  .shell {
-    height: calc(100% - 2.6rem);
-    display: grid;
-    grid-template-columns: 17.5rem minmax(0, 1fr);
-    grid-template-rows: minmax(0, 1fr) 15.5rem;
-    grid-template-areas: "rail plate" "rail audit";
-  }
-  .rail { grid-area: rail; border-right: 1px solid var(--edge); background: var(--surface); overflow-y: auto; }
-  .plate { grid-area: plate; position: relative; overflow: hidden; background: #000; min-width: 0; }
-  .audit { grid-area: audit; border-top: 1px solid var(--edge); background: var(--surface); display: flex; flex-direction: column; min-width: 0; }
-
-  /* ── rail ── */
-  .panel { border-bottom: 1px solid var(--edge); }
-  .head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.5rem;
-    padding: 0.45rem 0.7rem;
-    background: var(--surface2);
-    border-bottom: 1px solid var(--edge);
-    font-size: 9px;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--text);
-  }
-  .head .tag { color: var(--dimmer); letter-spacing: 0.1em; }
-  .body { padding: 0.7rem; }
-
-  .slot { border: 1px solid var(--edge2); background: var(--surface2); }
-  .slot + .slot { margin-top: 0.6rem; }
-  .slot-head {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.35rem 0.5rem;
-    border-bottom: 1px solid var(--edge);
-    font-size: 9px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-  }
-  .slot-body { display: grid; grid-template-columns: 3.4rem 1fr; gap: 0.5rem; padding: 0.5rem; }
-  .chip-img {
-    width: 3.4rem; height: 3.4rem;
-    border: 1px solid var(--edge2);
-    background: #000 center/cover no-repeat;
-    display: grid;
-    place-items: center;
-    font-size: 8px;
-    color: var(--dimmer);
-    letter-spacing: 0.08em;
-  }
-  .meta { display: flex; flex-direction: column; gap: 1px; font-size: 9.5px; min-width: 0; }
-  .meta span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .pick {
-    display: block;
+  /* ── viewer ── */
+  .viewer {
     position: relative;
-    padding: 0.35rem 0.5rem;
-    border-top: 1px solid var(--edge);
-    font-size: 9px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--cyan);
-    transition: background 160ms;
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    background: var(--n-900);
+    height: min(56vh, 30rem);
+    box-shadow: var(--shadow-md);
+    touch-action: none;
   }
-  .pick:hover { background: var(--edge); }
-  .pick input { position: absolute; width: 1px; height: 1px; opacity: 0; }
-  select {
-    width: 100%;
-    background: var(--bg);
-    border: 1px solid var(--edge2);
-    padding: 0.3rem 0.4rem;
-    font-size: 9.5px;
-    color: var(--text);
-  }
-  input[type=number] {
-    width: 100%;
-    background: var(--bg);
-    border: 1px solid var(--edge2);
-    padding: 0.4rem 0.5rem;
-    font-size: 11px;
-    color: var(--text);
-  }
-  .withtag { display: grid; grid-template-columns: 1fr auto; gap: 0.4rem; align-items: stretch; }
-  .autotag {
-    display: grid;
-    place-items: center;
-    padding: 0 0.5rem;
-    border: 1px solid var(--edge2);
-    font-size: 8.5px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--dim);
-    white-space: nowrap;
-  }
-  .hint { font-size: 9.5px; color: var(--dimmer); margin-top: 0.45rem; line-height: 1.45; }
-
-  .prompt { position: relative; }
-  .prompt::before {
-    content: ">";
-    position: absolute;
-    left: 0.5rem; top: 0.45rem;
-    color: var(--cyan);
-    pointer-events: none;
-  }
-  textarea {
-    width: 100%;
-    background: var(--bg);
-    border: 1px solid var(--edge2);
-    padding: 0.45rem 0.5rem 0.45rem 1.4rem;
-    font-family: var(--mono);
-    font-size: 11px;
-    line-height: 1.5;
-    min-height: 4.4rem;
-    resize: vertical;
-    color: var(--text);
-  }
-  textarea::placeholder { color: var(--dimmer); }
-
-  .presets { display: grid; grid-template-columns: 1fr 1fr; gap: 0.35rem; }
-  .presets button {
-    background: var(--bg);
-    border: 1px solid var(--edge2);
-    color: var(--dim);
-    padding: 0.3rem 0.4rem;
-    font-size: 9px;
-    letter-spacing: 0.04em;
-    text-align: left;
-    transition: color 160ms, border-color 160ms;
-  }
-  .presets button:hover { color: var(--cyan); border-color: var(--cyan); }
-
-  .exec {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.5rem;
-    background: rgba(6,182,212,0.09);
-    border: 1px solid var(--cyan);
-    color: var(--cyan);
-    padding: 0.6rem 0.7rem;
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    transition: background 160ms;
-  }
-  .exec:hover:not(:disabled) { background: rgba(6,182,212,0.2); }
-  .exec:disabled { border-color: var(--edge2); color: var(--dimmer); background: transparent; cursor: progress; }
-  .exec small { font-size: 8.5px; letter-spacing: 0.06em; text-transform: none; color: var(--dim); }
-  .pipe { padding: 0.45rem 0.7rem; font-size: 8.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dimmer); }
-
-  /* ── plate ── */
   .stage { position: absolute; top: 0; left: 0; transform-origin: 0 0; }
   .stage > img { display: block; position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
   .stage > img.fig { position: relative; }
   .peel { position: absolute; inset: 0; overflow: hidden; }
   .peel img { display: block; width: 100%; height: 100%; }
 
-  .hit { position: absolute; border: 1px solid var(--cyan); opacity: 0; animation: mark 0.2s ease forwards; }
-  @keyframes mark { to { opacity: 1; } }
+  .hit { position: absolute; border: 2px solid var(--a-400); border-radius: 3px; opacity: 0; animation: fade 0.24s ease forwards; }
+  @keyframes fade { to { opacity: 1; } }
   .hit b {
     position: absolute;
-    left: -1px; bottom: 100%;
+    left: -2px; bottom: 100%;
     transform-origin: 0 100%;
-    background: var(--cyan);
-    color: #04212a;
-    font-size: 8px;
+    background: var(--a-400);
+    color: var(--n-900);
+    font-family: var(--font-mono);
+    font-size: 9px;
     font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
     line-height: 1.5;
-    padding: 0 3px;
+    padding: 0 4px;
+    border-radius: 3px 3px 0 0;
     white-space: nowrap;
   }
   .hit.bare b { display: none; }
 
-  .seam { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--cyan); z-index: 6; cursor: ew-resize; }
-  .seam::before { content: ""; position: absolute; inset: 0 -9px; }
+  .seam { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--a-400); z-index: 6; cursor: ew-resize; }
+  .seam::before { content: ""; position: absolute; inset: 0 -10px; }
   .seam::after {
     content: "";
-    position: absolute;
-    top: 50%; left: 50%;
-    width: 0.75rem; height: 0.75rem;
+    position: absolute; top: 50%; left: 50%;
+    width: 22px; height: 22px;
     transform: translate(-50%, -50%);
-    border: 1px solid var(--cyan);
-    background: var(--bg);
+    border-radius: 50%;
+    background: var(--a-400);
+    box-shadow: var(--shadow-md);
   }
-
-  .sweepbar {
-    position: absolute; top: 0; bottom: 0;
-    left: 0; width: 18%;
+  .sweep {
+    position: absolute; top: 0; bottom: 0; left: 0; width: 24%;
     z-index: 7; pointer-events: none;
-    background: linear-gradient(90deg, transparent, rgba(6,182,212,0.05) 55%, rgba(6,182,212,0.45) 96%, rgba(6,182,212,0.95));
-    animation: pass 1.3s linear infinite;
+    background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--a-400) 12%, transparent) 55%, color-mix(in srgb, var(--a-400) 65%, transparent) 96%, var(--a-200));
+    animation: pass 1.4s linear infinite;
     will-change: transform;
   }
-  @keyframes pass { from { transform: translateX(-120%); } to { transform: translateX(570%); } }
+  @keyframes pass { from { transform: translateX(-110%); } to { transform: translateX(420%); } }
 
-  .hud {
+  .tools {
     position: absolute;
-    left: 0; right: 0;
+    left: var(--space-3); bottom: var(--space-3);
     z-index: 8;
     display: flex;
-    align-items: stretch;
-    gap: 0;
-    background: rgba(8,11,14,0.9);
-    font-size: 9px;
-    overflow-x: auto;
+    gap: 6px;
+    background: color-mix(in srgb, var(--n-100) 92%, transparent);
+    padding: 5px;
+    border-radius: 999px;
+    box-shadow: var(--shadow-md);
   }
-  .hud.top { top: 0; border-bottom: 1px solid var(--edge); }
-  .hud.bot { bottom: 0; border-top: 1px solid var(--edge); }
-  .hud span, .hud button {
-    padding: 0.3rem 0.6rem;
-    border-right: 1px solid var(--edge);
-    white-space: nowrap;
-    letter-spacing: 0.06em;
-    background: none;
-    border-top: 0; border-bottom: 0; border-left: 0;
-    color: var(--dim);
-  }
-  .hud button { transition: background 160ms, color 160ms; }
-  .hud button:hover:not(:disabled) { background: var(--edge); color: var(--cyan); }
-  .hud button[aria-pressed="true"] { background: var(--cyan); color: #04212a; }
-  .hud button:disabled { color: var(--dimmer); opacity: 0.5; cursor: not-allowed; }
-  .hud .push { margin-left: auto; border-right: 0; }
-  .hud b { color: var(--text); font-weight: 500; }
-
-  .bounds {
+  .tools .btn-ghost { border-radius: 999px; background: transparent; border-color: transparent; }
+  .tools .btn-ghost:hover:not(:disabled) { background: var(--n-200); }
+  .readout {
     position: absolute;
-    left: 0; right: 0; bottom: 1.55rem;
+    right: var(--space-3); bottom: var(--space-3);
+    z-index: 8;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--n-100);
+    text-align: right;
+    line-height: 1.6;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.7);
+  }
+  .keys {
+    position: absolute;
+    left: var(--space-3); top: var(--space-3);
     z-index: 8;
     display: flex;
-    background: rgba(8,11,14,0.9);
-    border-top: 1px solid var(--edge);
-    font-size: 9px;
-    overflow-x: auto;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+    background: color-mix(in srgb, var(--n-100) 92%, transparent);
+    padding: 5px 12px;
+    border-radius: 999px;
+    box-shadow: var(--shadow-sm);
+    font-size: 11px;
+    color: var(--n-700);
   }
-  .bounds span { padding: 0.28rem 0.6rem; border-right: 1px solid var(--edge); white-space: nowrap; color: var(--dim); }
-  .bounds i { font-style: normal; display: inline-block; width: 6px; height: 6px; margin-right: 5px; vertical-align: 0px; }
+  .keys i { display: inline-block; width: 9px; height: 9px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
+  .blank { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: var(--space-2); text-align: center; padding: var(--space-8); color: var(--n-400); }
+  .blank h4 { color: var(--n-200); margin: 0; }
+  .blank p { margin: 0; max-width: 34ch; font-size: 13px; }
 
-  .idle {
-    position: absolute; inset: 0;
-    display: grid; place-content: center; justify-items: start;
-    gap: 0.7rem; padding: 8%;
-  }
-  .idle h1 {
-    margin: 0;
-    font-family: var(--sans);
-    font-size: 1.5rem;
-    font-weight: 600;
-    letter-spacing: -0.02em;
-    color: #fff;
-  }
-  .idle p { margin: 0; max-width: 34rem; font-size: 11px; line-height: 1.7; color: var(--dim); }
-  .idle .bar { width: 2.5rem; height: 2px; background: var(--cyan); }
-  .idle code { color: var(--cyan); }
+  /* ── answer ── */
+  .answer { font-size: 18px; line-height: 1.6; }
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; }
 
-  /* ── audit band ── */
-  .ribbon {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.4rem 0.7rem;
-    border-bottom: 1px solid var(--edge);
-    background: var(--surface2);
-    font-size: 9px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--dim);
-    overflow-x: auto;
-    white-space: nowrap;
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr)); gap: var(--space-3); }
+  .tile { background: var(--surface); border-radius: var(--radius-md); padding: var(--space-3) var(--space-4); }
+  .tile .k { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--n-600); }
+  .tile .v { font-family: var(--font-mono); font-size: 22px; font-weight: 600; font-variant-numeric: tabular-nums; margin-top: 2px; letter-spacing: -0.02em; }
+  .tile .v small { font-size: 12px; font-weight: 400; color: var(--n-600); margin-left: 3px; }
+
+  .split2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); }
+  @media (max-width: 780px) { .split2 { grid-template-columns: 1fr; } }
+
+  .score { display: flex; align-items: baseline; gap: var(--space-3); margin-bottom: var(--space-3); }
+  .score b { font-family: var(--font-mono); font-size: 40px; font-weight: 600; line-height: 0.9; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+  .ledger { font-family: var(--font-mono); font-size: 12.5px; }
+  .ledger > div { display: flex; gap: var(--space-3); padding: 3px 0; }
+  .ledger .f { width: 3.4rem; text-align: right; flex: none; font-variant-numeric: tabular-nums; }
+  .ledger .t { color: var(--n-700); line-height: 1.45; }
+  .ledger .base { border-bottom: 1px solid var(--divider); padding-bottom: 6px; margin-bottom: 4px; }
+  .ledger .off .f { color: var(--danger); }
+  .ledger .net { border-top: 1px solid var(--n-400); margin-top: 6px; padding-top: 6px; font-weight: 600; }
+  .note { font-size: 12px; color: var(--n-600); line-height: 1.5; margin-top: var(--space-3); }
+
+  .steps { display: flex; flex-direction: column; gap: var(--space-3); }
+  .step { display: flex; gap: var(--space-3); }
+  .step .n {
     flex: none;
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: var(--a-200);
+    color: var(--a-700);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    display: grid;
+    place-items: center;
   }
-  .ribbon .arrow { color: var(--edge2); }
-  .ribbon .st { color: var(--text); }
-  .ribbon .push { margin-left: auto; }
+  .step .b { min-width: 0; }
+  .step .b .t { font-family: var(--font-mono); font-size: 13px; font-weight: 600; }
+  .step .b .a { font-family: var(--font-mono); font-size: 11px; color: var(--n-600); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .step .b .o { font-size: 13.5px; color: var(--n-700); line-height: 1.5; margin-top: 3px; }
 
-  .cols { display: grid; grid-template-columns: 1fr 1fr 1fr; flex: 1; min-height: 0; }
-  .colx { border-right: 1px solid var(--edge); display: flex; flex-direction: column; min-width: 0; }
-  .colx:last-child { border-right: 0; }
-  .colx > .head { flex: none; }
-  .colx > .body { overflow-y: auto; flex: 1; }
+  .facts { display: flex; flex-direction: column; font-family: var(--font-mono); font-size: 12.5px; }
+  .facts > div { display: flex; justify-content: space-between; gap: var(--space-3); padding: 5px 0; border-bottom: 1px solid var(--divider); }
+  .facts > div:last-child { border-bottom: 0; }
+  .facts dt { color: var(--n-600); }
+  .facts dd { margin: 0; text-align: right; }
 
-  .ledger > div { display: flex; gap: 0.7rem; padding: 0.18rem 0; }
-  .ledger .f { width: 3.2rem; text-align: right; flex: none; }
-  .ledger .t { color: var(--dim); line-height: 1.4; }
-  .ledger .base { border-bottom: 1px solid var(--edge); padding-bottom: 0.35rem; margin-bottom: 0.35rem; }
-  .ledger .net { border-top: 1px solid var(--edge2); margin-top: 0.35rem; padding-top: 0.35rem; }
-  .scorebox {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 0.5rem;
-    border: 1px solid currentColor;
-    padding: 0.35rem 0.55rem;
-    margin-bottom: 0.6rem;
-    font-size: 10px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-  }
-  .scorebox b { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; }
-
-  .log > div { display: grid; grid-template-columns: 3.2rem 1fr; gap: 0.5rem; padding: 0.22rem 0; }
-  .log .ts { color: var(--dimmer); }
-  .log .ln { min-width: 0; }
-  .log .ln b { color: var(--cyan); font-weight: 500; }
-  .log .ln em { font-style: normal; color: var(--dim); display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .log .ln u { text-decoration: none; color: var(--text); display: block; line-height: 1.45; margin-top: 2px; }
-
-  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(6.5rem, 1fr)); gap: 0.4rem; margin-bottom: 0.6rem; }
-  .tile { border: 1px solid var(--edge2); background: var(--bg); padding: 0.4rem 0.5rem; }
-  .tile .k { font-size: 8px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dimmer); }
-  .tile .v { font-size: 14px; font-weight: 600; margin-top: 2px; }
-  .tile .v span { font-size: 9px; font-weight: 400; color: var(--dim); margin-left: 2px; }
-  .prose { font-size: 11px; line-height: 1.65; color: var(--text); }
-  .prose + .foot { margin-top: 0.6rem; }
-  .foot { display: flex; gap: 0.5rem; }
+  .rowend { display: flex; gap: var(--space-3); align-items: center; flex-wrap: wrap; }
   .pdf {
     display: inline-block;
-    border: 1px solid var(--edge2);
-    padding: 0.3rem 0.6rem;
+    background: var(--accent-2);
+    color: var(--bg);
+    border-radius: 999px;
+    padding: 9px 18px;
     text-decoration: none;
-    color: var(--text);
-    font-size: 9px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    transition: border-color 160ms, color 160ms;
+    font-size: 14px;
+    font-weight: 600;
+    transition: filter 180ms;
   }
-  .pdf:hover { border-color: var(--cyan); color: var(--cyan); }
-  .empty { color: var(--dimmer); font-size: 10px; }
+  .pdf:hover { filter: brightness(1.08); }
+  .fail { border-left: 4px solid var(--danger); }
+  .fail h4 { color: var(--danger); }
 
-  @media (max-width: 1080px) {
-    body { overflow: auto; }
-    .shell { grid-template-columns: 1fr; grid-template-rows: auto 60vh auto; grid-template-areas: "rail" "plate" "audit"; height: auto; }
-    .rail { border-right: 0; border-bottom: 1px solid var(--edge); overflow: visible; }
-    .cols { grid-template-columns: 1fr; }
-    .colx { border-right: 0; border-bottom: 1px solid var(--edge); }
-  }
   @media (prefers-reduced-motion: reduce) {
-    .sweepbar, .beacon::before { animation: none; }
+    .sweep { animation: none; opacity: 0.3; }
     .hit { animation: none; opacity: 1; }
-    * { transition-duration: 0ms !important; }
+    *, *::before, *::after { transition-duration: 0ms !important; }
   }
 </style>
 </head>
 <body>
 
-<div class="telem" id="telem">
-  <div class="cell brand"><div class="k">instrument</div><div class="v">SatQuery AI</div></div>
-  <div class="cell"><div class="k">status</div><div class="v cy beacon">booting</div></div>
-</div>
+<header>
+  <div class="wordmark">
+    <span>SatQuery AI</span>
+    <span>agentic remote-sensing analysis</span>
+  </div>
+  <div class="rig" id="rig"><span class="quiet">connecting…</span></div>
+</header>
 
-<div class="shell">
+<main class="sq-main">
 
-  <aside class="rail">
+  <section class="sq-rail">
     <form id="form" autocomplete="off">
-      <div class="panel">
-        <div class="head">Input payload contract <span class="tag">multipart</span></div>
-        <div class="body">
-          <div class="slot">
-            <div class="slot-head"><span class="cy">[ img 01 · primary ]</span><span class="tag lbl">required</span></div>
-            <div class="slot-body">
-              <div class="chip-img" id="thumb1">NO SRC</div>
-              <div class="meta" id="meta1">
-                <span class="dim lbl">awaiting file</span>
-                <span style="color:var(--dimmer)">png · jpg · geotiff</span>
-              </div>
-            </div>
-            <select id="image1_modality" name="image1_modality" aria-label="Primary modality" style="border:0;border-top:1px solid var(--edge)">
-              <option value="auto">modality · auto-detect</option><option value="optical">optical</option><option value="sar">SAR</option>
-            </select>
-            <label class="pick">select source
-              <input id="image1" name="image1" type="file" accept=".png,.jpg,.jpeg,.tif,.tiff" required>
-            </label>
-          </div>
-
-          <div class="slot">
-            <div class="slot-head"><span class="vi">[ img 02 · second ]</span><span class="tag lbl">optional</span></div>
-            <div class="slot-body">
-              <div class="chip-img" id="thumb2">NO SRC</div>
-              <div class="meta" id="meta2">
-                <span class="dim lbl">awaiting file</span>
-                <span style="color:var(--dimmer)">second date, or SAR</span>
-              </div>
-            </div>
-            <select id="image2_modality" name="image2_modality" aria-label="Second modality" style="border:0;border-top:1px solid var(--edge)">
-              <option value="auto">modality · auto-detect</option><option value="optical">optical</option><option value="sar">SAR</option>
-            </select>
-            <label class="pick">select source
-              <input id="image2" name="image2" type="file" accept=".png,.jpg,.jpeg,.tif,.tiff">
-            </label>
-          </div>
-        </div>
+      <div class="field">
+        <label for="image1">Image 1 <span>*</span></label>
+        <label class="drop" id="d1" for="image1">
+          <span id="n1">Drop image or click to browse</span>
+          <input id="image1" name="image1" type="file" accept=".png,.jpg,.jpeg,.tif,.tiff" required>
+        </label>
+        <select class="input" id="image1_modality" name="image1_modality" aria-label="Image 1 modality">
+          <option value="auto">modality — auto</option><option value="optical">optical</option><option value="sar">sar</option>
+        </select>
       </div>
 
-      <div class="panel">
-        <div class="head">Ground resolution <span class="tag">GSD</span></div>
-        <div class="body">
-          <div class="withtag">
-            <input id="resolution_m" name="resolution_m" type="number" step="any" min="0" placeholder="metres per pixel">
-            <div class="autotag" id="gsdtag">auto</div>
-          </div>
-          <div class="hint">GeoTIFFs carry this in their geotransform. Supply it for a PNG, or areas are withheld and only percentages reported.</div>
-        </div>
+      <div class="field">
+        <label for="image2">Image 2 — optional</label>
+        <p>Enables change detection (same place, later date) or optical + SAR fusion (different modality).</p>
+        <label class="drop" id="d2" for="image2">
+          <span id="n2">Drop image or click to browse</span>
+          <input id="image2" name="image2" type="file" accept=".png,.jpg,.jpeg,.tif,.tiff">
+        </label>
+        <select class="input" id="image2_modality" name="image2_modality" aria-label="Image 2 modality">
+          <option value="auto">modality — auto</option><option value="optical">optical</option><option value="sar">sar</option>
+        </select>
       </div>
 
-      <div class="panel">
-        <div class="head">Task / query prompt <span class="tag">natural language</span></div>
-        <div class="body">
-          <div class="prompt">
-            <textarea id="query" name="query" required placeholder="classify land cover and compute vegetated area"></textarea>
-          </div>
-          <div class="hint" style="margin-bottom:0.55rem">Operational presets</div>
-          <div class="presets" id="presets"></div>
-        </div>
+      <div class="field">
+        <label for="resolution_m">Ground resolution — optional (m/px)</label>
+        <input class="input" id="resolution_m" name="resolution_m" type="number" step="any" min="0"
+               placeholder="e.g. 0.5 — needed for hectares">
       </div>
 
-      <div class="panel">
-        <div class="body" style="padding:0.7rem 0.7rem 0">
-          <button type="submit" class="exec" id="go">
-            <span>Execute analysis</span><small>POST /api/analyze</small>
-          </button>
-        </div>
-        <div class="pipe">Agent routes · tools measure · answer cites</div>
+      <div class="field">
+        <label for="query">Query <span>*</span></label>
+        <textarea class="input" id="query" name="query" required
+                  placeholder="What changed between these two dates?"></textarea>
       </div>
+
+      <button type="submit" class="btn btn-primary btn-block" id="go">Analyze</button>
     </form>
-  </aside>
+  </section>
 
-  <div class="plate" id="plate">
-    <div class="idle">
-      <div class="bar"></div>
-      <h1>Instrument idle</h1>
-      <p>Load a scene and state a task in plain language. The agent classifies it, calls
-      up to three of six analysis tools, and composes an answer from what those tools
-      measured. <code>run_vqa</code> cannot count or measure; quantities are routed to
-      deterministic code, so every figure below can be reproduced by hand.</p>
+  <section class="sq-work" id="work" aria-live="polite">
+    <div class="card idle" id="idle">
+      <div>
+        <h3>Ready to analyze</h3>
+        <p>Upload one or two images and ask a question in plain English. The agent picks
+        from six analysis tools, runs them, and shows exactly how it got the answer —
+        every number comes from a measurement, never from the language model.</p>
+      </div>
+      <div class="examples" id="examples"></div>
     </div>
-  </div>
+  </section>
 
-  <div class="audit">
-    <div class="ribbon" id="ribbon">
-      <span class="st">User query</span><span class="arrow">→</span>
-      <span class="st">Agent classifier</span><span class="arrow">→</span>
-      <span class="st">Deterministic tool</span><span class="arrow">→</span>
-      <span class="st">Pixel evidence</span><span class="arrow">→</span>
-      <span class="st">Confidence audit</span><span class="arrow">→</span>
-      <span class="st">Synthesis</span>
-      <span class="push" id="ribbonjob">no job</span>
-    </div>
-    <div class="cols" id="cols">
-      <div class="colx">
-        <div class="head">Confidence arithmetic audit</div>
-        <div class="body"><div class="empty">Awaiting analysis.</div></div>
-      </div>
-      <div class="colx">
-        <div class="head">Deterministic execution log</div>
-        <div class="body"><div class="empty">Awaiting analysis.</div></div>
-      </div>
-      <div class="colx">
-        <div class="head">Measurement &amp; synthesis</div>
-        <div class="body"><div class="empty">Awaiting analysis.</div></div>
-      </div>
-    </div>
-  </div>
-
-</div>
+</main>
 
 <script>
 const API = location.origin;
 const $ = (s, r = document) => r.querySelector(s);
 
-/* ── presets ── */
-const PRESETS = [
-  ["LC-01", "Land cover", "What kind of land cover is visible?"],
-  ["AR-02", "Area", "How much of this scene is trees, in hectares?"],
-  ["GR-03", "Locate", "Highlight the buildings"],
-  ["CD-04", "Bi-temporal", "What changed between these two dates?"],
-  ["CT-05", "Count", "How many houses are in this image?"],
-  ["FU-06", "Fusion", "Is there open water in this scene?"],
+/* ── examples ── */
+const EXAMPLES = [
+  ["change", "What changed between these two dates?"],
+  ["caption", "Describe this scene."],
+  ["vqa", "What kind of land cover is visible?"],
+  ["land cover", "How much of this scene is trees, and how much is water?"],
+  ["grounding", "Highlight the buildings"],
+  ["fusion", "Is there open water in this scene?"],
 ];
-$("#presets").innerHTML = PRESETS.map(([id, name, q]) =>
-  `<button type="button" data-q="${esc(q)}">[${esc(id)}] ${esc(name)}</button>`).join("");
-$("#presets").onclick = e => {
-  const b = e.target.closest("button");
+$("#examples").innerHTML = EXAMPLES.map(([k, q]) =>
+  `<button type="button" class="ex" data-q="${esc(q)}"><b>${esc(k)}</b><span>${esc(q)}</span></button>`).join("");
+$("#examples").onclick = e => {
+  const b = e.target.closest(".ex");
   if (b) { $("#query").value = b.dataset.q; $("#query").focus(); }
 };
 
-/* ── file slots ── */
-const previews = { image1: null, image2: null };
-[["image1", "#thumb1", "#meta1"], ["image2", "#thumb2", "#meta2"]].forEach(([id, tsel, msel]) => {
-  $("#" + id).onchange = () => {
-    const f = $("#" + id).files[0];
-    const thumb = $(tsel), meta = $(msel);
-    if (previews[id]) { URL.revokeObjectURL(previews[id]); previews[id] = null; }
+/* ── drop zones ── */
+const held = { image1: null, image2: null };
+[["image1", "#d1", "#n1"], ["image2", "#d2", "#n2"]].forEach(([id, dsel, nsel]) => {
+  const input = $("#" + id), drop = $(dsel);
+  function show() {
+    const f = input.files[0];
+    if (held[id]) { URL.revokeObjectURL(held[id]); held[id] = null; }
+    drop.classList.remove("over");
     if (!f) {
-      thumb.style.backgroundImage = ""; thumb.textContent = "NO SRC";
-      meta.innerHTML = `<span class="lbl">awaiting file</span>`;
+      drop.classList.remove("filled");
+      $(nsel).textContent = "Drop image or click to browse";
       return;
     }
-    const geo = /\.tiff?$/i.test(f.name);
-    if (!geo) {
-      previews[id] = URL.createObjectURL(f);
-      thumb.style.backgroundImage = `url(${previews[id]})`;
-      thumb.textContent = "";
-    } else {
-      thumb.style.backgroundImage = ""; thumb.textContent = "GEOTIFF";
-    }
-    meta.innerHTML =
-      `<span class="val">${esc(f.name)}</span>
-       <span style="color:var(--dimmer)">${(f.size / 1024).toFixed(0)} KB · ${geo ? "GeoTIFF · multispectral" : "8-bit RGB"}</span>
-       <span class="${geo ? "em" : "am"}">${geo ? "GSD FROM GEOTRANSFORM" : "GSD REQUIRED FOR AREAS"}</span>`;
-    if (id === "image1") $("#gsdtag").textContent = geo ? "auto" : "manual";
-  };
+    drop.classList.add("filled");
+    const web = /\.(png|jpe?g)$/i.test(f.name);
+    if (web) held[id] = URL.createObjectURL(f);
+    $(nsel).outerHTML = `<span class="thumb" id="${nsel.slice(1)}">
+      ${web ? `<img src="${held[id]}" alt="">` : ""}
+      <span>${esc(f.name)} · ${(f.size / 1024).toFixed(0)} KB</span></span>`;
+  }
+  input.onchange = show;
+  drop.addEventListener("dragover", e => { e.preventDefault(); drop.classList.add("over"); });
+  drop.addEventListener("dragleave", () => drop.classList.remove("over"));
+  drop.addEventListener("drop", e => {
+    e.preventDefault();
+    if (e.dataTransfer.files.length) { input.files = e.dataTransfer.files; show(); }
+  });
 });
 
-/* ── telemetry ── */
-function cell(k, v, cls) { return `<div class="cell"><div class="k">${esc(k)}</div><div class="v ${cls || ""}">${v}</div></div>`; }
+/* ── header rig ── */
 fetch(API + "/api/health").then(r => r.json()).then(h => {
-  const up = Object.entries(h.providers_ok || {}).filter(([, ok]) => ok).map(([n]) => n);
-  const allUp = up.length === Object.keys(h.providers_ok || {}).length;
-  $("#telem").innerHTML =
-    `<div class="cell brand"><div class="k">instrument</div><div class="v">SatQuery AI</div></div>`
-    + cell("sys", `<span class="beacon">${allUp && h.gpu_available ? "NOMINAL" : "DEGRADED"}</span>`,
-           allUp && h.gpu_available ? "em" : "am")
-    + cell("vlm", "Moondream2 · 2B", "val")
-    + cell("lora", h.lora_adapter_loaded ? "BigEarthNet · loaded" : "not loaded", h.lora_adapter_loaded ? "cy" : "rd")
-    + cell("gpu", esc(h.gpu_available ? h.gpu_name.replace(/NVIDIA GeForce /i, "") : "CPU only"), h.gpu_available ? "val" : "am")
-    + cell("agent brains", up.map(n => esc(n)).join(" · ") || "none", up.length ? "val" : "rd")
-    + cell("inference", "local · no upload", "em")
-    + `<div class="cell last"><div class="k">link</div><div class="v em beacon">ONLINE</div></div>`;
-}).catch(() => {
-  $("#telem").innerHTML =
-    `<div class="cell brand"><div class="k">instrument</div><div class="v">SatQuery AI</div></div>`
-    + cell("sys", `<span class="beacon">OFFLINE</span>`, "rd")
-    + `<div class="cell last"><div class="k">link</div><div class="v rd">backend unreachable</div></div>`;
-});
+  const brains = Object.entries(h.providers_ok || {})
+    .map(([n, ok]) => `<span class="brain ${ok ? "up" : "down"}"><i></i>${esc(n)}</span>`).join("");
+  $("#rig").innerHTML =
+    `<span>compute <b>${esc(h.gpu_available ? h.gpu_name.replace(/NVIDIA GeForce /i, "") : "CPU only")}</b></span>
+     <span class="brains"><span class="quiet">brains</span>${brains}</span>
+     ${h.lora_adapter_loaded ? `<span class="tag tag-accent-2">LoRA adapter loaded</span>` : ""}`;
+}).catch(() => { $("#rig").innerHTML = `<span class="tag" style="background:var(--a-200);color:var(--danger)">backend unreachable</span>`; });
 
 /* ── submit ── */
 $("#form").onsubmit = async e => {
   e.preventDefault();
   $("#go").disabled = true;
-  const t0 = performance.now();
+  $("#go").textContent = "Analyzing…";
   scanning(e.target.image1.files[0]);
   try {
     const res = await fetch(API + "/api/analyze", { method: "POST", body: new FormData(e.target) });
@@ -652,72 +519,51 @@ $("#form").onsubmit = async e => {
     paint(body);
   } catch (err) {
     clearInterval(scanning.t);
-    $("#plate").innerHTML = `<div class="idle"><div class="bar" style="background:var(--red)"></div>
-      <h1>Payload rejected</h1><p class="rd">${esc(err.message)}</p>
-      <p>Validation runs before analysis. A clear refusal is designed behaviour — the
-      instrument does not guess its way past an input it cannot handle.</p></div>`;
-    setCols(`<div class="empty rd">${esc(err.message)}</div>`,
-            `<div class="empty">No tool was dispatched.</div>`,
-            `<div class="empty">Nothing measured.</div>`);
-    $("#ribbonjob").textContent = "rejected";
+    $("#work").innerHTML = `<div class="card fail">
+      <h4>Input rejected</h4>
+      <p>${esc(err.message)}</p>
+      <p class="note">Validation runs before analysis. A clear refusal is designed
+      behaviour — the system does not guess its way past an input it cannot handle.</p>
+    </div>`;
   } finally {
     $("#go").disabled = false;
-    void t0;
+    $("#go").textContent = "Analyze";
   }
 };
-
-function setCols(a, b, c) {
-  const cols = $("#cols").children;
-  cols[0].lastElementChild.innerHTML = a;
-  cols[1].lastElementChild.innerHTML = b;
-  cols[2].lastElementChild.innerHTML = c;
-}
 
 /* ── scanning ── */
 let scanUrl = null;
 function scanning(file) {
   if (scanUrl) URL.revokeObjectURL(scanUrl);
   scanUrl = file && /\.(png|jpe?g)$/i.test(file.name) ? URL.createObjectURL(file) : null;
-  $("#plate").innerHTML =
-    (scanUrl ? `<img src="${scanUrl}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;opacity:0.32">`
-             : `<div class="idle"><div class="bar"></div><h1>Scanning</h1></div>`)
-    + `<div class="sweepbar"></div>`;
-  const phases = [
-    ["00.0s", "POST /api/analyze accepted"],
-    ["", "agent classifying task"],
-    ["", "tool executing"],
-    ["", "composing answer from measurements"],
-  ];
+  $("#work").innerHTML = `
+    <div class="viewer">
+      ${scanUrl ? `<img src="${scanUrl}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;opacity:0.4">`
+                : `<div class="blank"><h4>Analyzing</h4></div>`}
+      <div class="sweep"></div>
+    </div>
+    <div class="card plain">
+      <div class="card-h"><h4 id="phase">Dispatching to the agent</h4><span class="eyebrow">working</span></div>
+      <p class="note" style="margin:0">The first analysis takes about 40 seconds while the vision
+      model loads onto the GPU. Later ones take 5 to 20 seconds.</p>
+    </div>`;
+  const phases = ["Dispatching to the agent", "Running analysis tools", "Measuring pixels", "Composing the answer"];
   let i = 0;
-  const render = () => setCols(
-    `<div class="empty">Ledger opens when the tool returns.</div>`,
-    `<div class="log">${phases.slice(0, i + 1).map(([ts, t]) =>
-      `<div><span class="ts">${esc(ts || "····")}</span><span class="ln"><u>${esc(t)}</u></span></div>`).join("")}</div>`,
-    `<div class="empty">First run takes ~40 s while the vision model loads onto the GPU. Later runs 5–20 s.</div>`);
-  render();
-  $("#ribbonjob").textContent = "executing";
   clearInterval(scanning.t);
   scanning.t = setInterval(() => {
-    if (!$(".sweepbar")) return clearInterval(scanning.t);
+    const el = $("#phase");
+    if (!el) return clearInterval(scanning.t);
     i = Math.min(i + 1, phases.length - 1);
-    render();
+    el.textContent = phases[i];
   }, 6000);
 }
 
-/* ── class bounds shown under the plate, from the tool's own thresholds ── */
-const BOUNDS = {
-  run_land_cover: t => [
-    ["vegetation", "var(--emerald)", t.vegetation || "index"],
-    ["water", "var(--cyan)", t.water || "index"],
-    ["built-up / bare", "var(--amber)", "brightness > 0.35"],
-  ],
-  run_fusion_analysis: t => [
-    ["water · agreed", "var(--cyan)", "optical + radar dark"],
-    ["built-up · agreed", "var(--amber)", "bright + radar bright"],
-    ["vegetation", "var(--emerald)", t.vegetation || "index"],
-  ],
-  run_change_analysis: t => [["change", "var(--red)", t.change || "3σ outlier"]],
-  run_grounding: () => [["matched region", "var(--cyan)", "detector output"]],
+/* ── legend keys ── */
+const KEYS = {
+  run_land_cover: t => [["vegetation", "var(--g-400)", t.vegetation || ""], ["water", "#5f92dd", t.water || ""], ["built-up / bare", "var(--a-400)", "brightness"]],
+  run_fusion_analysis: t => [["water · agreed", "#5f92dd", ""], ["built-up · agreed", "var(--a-400)", ""], ["vegetation", "var(--g-400)", t.vegetation || ""]],
+  run_change_analysis: t => [["detected change", "#e08b7d", t.change || ""]],
+  run_grounding: () => [["matched region", "var(--a-400)", ""]],
 };
 
 function paint(r) {
@@ -726,106 +572,121 @@ function paint(r) {
   const base = ev.image1_url || ev.overlay_png_url;
   const dual = !!(ev.image1_url && ev.overlay_png_url);
   const hits = ev.boxes || [];
-  const bounds = (BOUNDS[r.task_classified] || (() => []))(th);
-  const tier = r.confidence >= 0.8 ? ["high", "var(--emerald)"]
-             : r.confidence >= 0.6 ? ["moderate", "var(--amber)"]
-             : ["low", "var(--red)"];
-
-  $("#plate").innerHTML = base ? `
-    <div class="stage" id="stage">
-      <img class="fig" id="fig" src="${API + base}" alt="Analysed scene">
-      ${dual ? `<div class="peel" id="peel"><img src="${API + ev.overlay_png_url}" alt="Annotated output"></div>` : ""}
-      <div id="hits"></div>
-    </div>
-    ${dual ? `<div class="seam" id="seam" hidden></div>` : ""}
-    <div class="hud top">
-      <button type="button" data-z="out" aria-label="Zoom out">−</button>
-      <button type="button" data-z="in" aria-label="Zoom in">+</button>
-      <button type="button" data-z="fit">FIT</button>
-      <button type="button" id="cmp" aria-pressed="false" ${dual ? "" : "disabled"}>SPLIT</button>
-      <button type="button" id="swp" ${dual ? "" : "disabled"}>SWEEP</button>
-      <span>TOOL <b>${esc(r.task_classified)}</b></span>
-      <span>BRAIN <b>${esc(r.llm_provider)}</b></span>
-      <span class="push">${hits.length ? `DETECTIONS <b class="cy">${hits.length}</b>` : ""}</span>
-    </div>
-    ${bounds.length ? `<div class="bounds">${bounds.map(([n, c, rule]) =>
-      `<span><i style="background:${c}"></i>${esc(n)} <b style="color:var(--dimmer)">${esc(rule)}</b></span>`).join("")}</div>` : ""}
-    <div class="hud bot">
-      <span>ZOOM <b id="zoomv">—</b></span>
-      <span>RASTER <b id="dimv">—</b></span>
-      ${th.gsd ? `<span>GSD <b>${esc(th.gsd)}</b></span>` : `<span class="am">GSD NOT SUPPLIED</span>`}
-      ${th.nir ? `<span>NIR <b class="${th.nir === "present" ? "em" : "am"}">${esc(th.nir)}</b></span>` : ""}
-      <span class="push">ELAPSED <b>${esc(String(r.elapsed_seconds))}s</b></span>
-    </div>`
-  : `<div class="idle"><div class="bar" style="background:var(--amber)"></div>
-     <h1>Raster not displayable</h1>
-     <p>The scene was analysed, but a GeoTIFF carries more spectral bands than a browser
-     can draw. The measurements below are unaffected.</p></div>`;
-
-  const ledger = `
-    <div class="scorebox" style="color:${tier[1]}">
-      <span>[ ${esc(tier[0])} confidence ]</span><b class="num">${r.confidence.toFixed(2)}</b>
-    </div>
-    <div class="ledger">
-      <div class="base"><span class="f val num">${(r.confidence_base ?? 0.85).toFixed(2)}</span><span class="t">Base metric — routed tool executed and returned</span></div>
-      ${(r.confidence_deductions || (r.confidence_reasons || []).map(reason => ({ amount: null, reason })))
-        .map(d => `<div><span class="f rd num">${d.amount == null ? "−" : "−" + d.amount.toFixed(2)}</span><span class="t">${esc(d.reason)}</span></div>`).join("")
-        || `<div><span class="f em num">0.00</span><span class="t">No deductions applied</span></div>`}
-      <div class="net"><span class="f val num">${r.confidence.toFixed(2)}</span><span class="t val">Stated confidence · shipped in response and PDF</span></div>
-    </div>`;
-
-  const log = `<div class="log">${(r.execution_trace || []).map((s, i) => `
-      <div>
-        <span class="ts num">${String(i * 2).padStart(2, "0")}.${String(i * 17 % 100).padStart(2, "0")}s</span>
-        <span class="ln">
-          <b>[TOOL]</b> ${esc(s.tool)}
-          <em>${esc(JSON.stringify(s.parameters))}</em>
-          <u>${esc(s.output_summary)}</u>
-        </span>
-      </div>`).join("")}
-    <div><span class="ts num">—</span><span class="ln"><b class="em">[AUDIT]</b>
-      <u>Confidence ledger balanced (${r.confidence.toFixed(2)}) · complete</u></span></div>
-    </div>`;
-
+  const keys = (KEYS[r.task_classified] || (() => []))(th);
+  const tier = r.confidence >= 0.8 ? ["high", "var(--g-700)"]
+             : r.confidence >= 0.6 ? ["moderate", "var(--warn)"]
+             : ["low", "var(--danger)"];
   const measures = r.measurements || [];
-  const synth = `
-    ${measures.length ? `<div class="tiles">${measures.map(t =>
-      `<div class="tile"><div class="k">${esc(t.label)}</div>
-        <div class="v num">${esc(String(t.value))}<span>${esc(t.unit || "")}</span></div></div>`).join("")}</div>` : ""}
-    <div class="prose">${esc(r.answer ?? "")}</div>
-    <div class="foot">
-      <a class="pdf" href="${API + r.report_url}" target="_blank" rel="noopener">Export PDF audit</a>
-      <span class="pdf" style="border-color:var(--edge);color:var(--dimmer)">
-        ${prof.profile1 ? esc(`${prof.profile1.width}×${prof.profile1.height} · ${prof.profile1.band_count}b · ${prof.profile1.modality}`) : "—"}
-        ${prof.pair?.compatible ? " · VALIDATED" : ""}
-      </span>
+
+  $("#work").innerHTML = `
+    ${base ? `
+    <div class="viewer" id="viewer">
+      <div class="stage" id="stage">
+        <img class="fig" id="fig" src="${API + base}" alt="Analysed scene">
+        ${dual ? `<div class="peel" id="peel"><img src="${API + ev.overlay_png_url}" alt="Annotated output"></div>` : ""}
+        <div id="hits"></div>
+      </div>
+      ${dual ? `<div class="seam" id="seam" hidden></div>` : ""}
+      ${keys.length ? `<div class="keys">${keys.map(([n, c, rule]) =>
+        `<span><i style="background:${c}"></i>${esc(n)}${rule ? ` <span class="quiet mono">${esc(rule)}</span>` : ""}</span>`).join("")}</div>` : ""}
+      <div class="tools">
+        <button type="button" class="btn btn-ghost" data-z="out" aria-label="Zoom out">−</button>
+        <button type="button" class="btn btn-ghost" data-z="in" aria-label="Zoom in">+</button>
+        <button type="button" class="btn btn-ghost" data-z="fit">fit</button>
+        <button type="button" class="btn btn-ghost" id="cmp" aria-pressed="false" ${dual ? "" : "disabled"}>compare</button>
+        <button type="button" class="btn btn-ghost" id="swp" ${dual ? "" : "disabled"}>sweep</button>
+      </div>
+      <div class="readout" id="readout"></div>
+    </div>`
+    : `<div class="viewer"><div class="blank"><h4>Source not displayable</h4>
+       <p>The scene was analysed, but a GeoTIFF carries more spectral bands than a browser
+       can draw. The measurements below are unaffected.</p></div></div>`}
+
+    <div class="card">
+      <div class="card-h">
+        <h4>Answer</h4>
+        <div class="chips">
+          <span class="tag tag-accent">${esc(r.task_classified)}</span>
+          <span class="tag">${esc(r.llm_provider)}</span>
+          <span class="tag">${esc(String(r.elapsed_seconds))}s</span>
+        </div>
+      </div>
+      ${measures.length ? `<div class="tiles" style="margin-bottom:var(--space-4)">${measures.map(t =>
+        `<div class="tile"><div class="k">${esc(t.label)}</div>
+          <div class="v">${esc(String(t.value))}<small>${esc(t.unit || "")}</small></div></div>`).join("")}</div>` : ""}
+      <div class="answer">${esc(r.answer ?? "")}</div>
+      <div class="rowend" style="margin-top:var(--space-4)">
+        <a class="pdf" href="${API + r.report_url}" target="_blank" rel="noopener">Download PDF report</a>
+        <span class="eyebrow">job ${esc(r.job_id)}</span>
+      </div>
+    </div>
+
+    <div class="split2">
+      <div class="card plain">
+        <div class="card-h"><h4>Confidence</h4><span class="eyebrow">${esc(tier[0])}</span></div>
+        <div class="score" style="color:${tier[1]}"><b>${r.confidence.toFixed(2)}</b></div>
+        <div class="ledger">
+          <div class="base"><span class="f">${(r.confidence_base ?? 0.85).toFixed(2)}</span><span class="t">base score</span></div>
+          ${(r.confidence_deductions || (r.confidence_reasons || []).map(reason => ({ amount: null, reason })))
+            .map(d => `<div class="off"><span class="f">${d.amount == null ? "−" : "−" + d.amount.toFixed(2)}</span><span class="t">${esc(d.reason)}</span></div>`).join("")
+            || `<div><span class="f">0.00</span><span class="t">no deductions applied</span></div>`}
+          <div class="net"><span class="f">${r.confidence.toFixed(2)}</span><span class="t">stated confidence</span></div>
+        </div>
+        <p class="note">Not the model's self-assessment. A base score with named deductions
+        for conditions detected in the data — each one ships in the API response and the PDF.</p>
+      </div>
+
+      <div class="card plain">
+        <div class="card-h"><h4>How it got there</h4><span class="eyebrow">execution trace</span></div>
+        <div class="steps">
+          ${(r.execution_trace || []).map(s => `
+            <div class="step">
+              <span class="n">${esc(String(s.step))}</span>
+              <div class="b">
+                <div class="t">${esc(s.tool)}</div>
+                <div class="a" title="${esc(JSON.stringify(s.parameters))}">${esc(JSON.stringify(s.parameters))}</div>
+                <div class="o">${esc(s.output_summary)}</div>
+              </div>
+            </div>`).join("")}
+        </div>
+      </div>
+    </div>
+
+    <div class="card plain">
+      <div class="card-h"><h4>Validated input</h4><span class="eyebrow">checked before analysis</span></div>
+      <div class="facts">
+        ${fact("image 1", prof.profile1 ? `${prof.profile1.width}×${prof.profile1.height} · ${prof.profile1.band_count} bands · ${prof.profile1.modality}` : "—")}
+        ${prof.profile2 ? fact("image 2", `${prof.profile2.width}×${prof.profile2.height} · ${prof.profile2.band_count} bands · ${prof.profile2.modality}`) : ""}
+        ${fact("pair", prof.pair?.pair_type ?? "none")}
+        ${fact("compatible", prof.pair?.compatible ? "yes" : (prof.pair?.reason ?? "no"))}
+        ${th.gsd ? fact("ground sample distance", th.gsd) : ""}
+        ${th.nir ? fact("near-infrared", th.nir) : ""}
+        ${hits.length ? fact("detections", `${hits.length} × ${ev.label || "match"}`) : ""}
+      </div>
     </div>`;
 
-  setCols(ledger, log, synth);
-  $("#ribbonjob").innerHTML = `JOB <b style="color:var(--text)">${esc(r.job_id)}</b>`;
   if (base) mount(ev);
 }
 
-/* ── plate interaction ── */
-// paint() replaces the plate's children but not the plate itself, so its pan
-// and zoom handlers would accumulate one set per analysis. One controller per
-// mount, aborted on the next.
-let plateHandlers = null;
+function fact(k, v) { return `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`; }
+
+/* ── viewer interaction ── */
+// paint() rebuilds the work area, so each mount's listeners live and die with
+// their own controller rather than accumulating on a surviving element.
+let handlers = null;
 function mount(ev) {
-  if (plateHandlers) plateHandlers.abort();
-  plateHandlers = new AbortController();
-  const on = { signal: plateHandlers.signal };
-  const plate = $("#plate"), stage = $("#stage"), fig = $("#fig");
-  const seam = $("#seam"), peel = $("#peel");
+  if (handlers) handlers.abort();
+  handlers = new AbortController();
+  const on = { signal: handlers.signal };
+  const viewer = $("#viewer"), stage = $("#stage"), fig = $("#fig");
+  const seam = $("#seam"), peel = $("#peel"), readout = $("#readout");
   const hits = ev.boxes || [], space = ev.image_size || null;
   const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
   let k = 1, tx = 0, ty = 0, W = 0, H = 0, cmp = false, cut = 0;
 
   function draw() {
     stage.style.transform = `translate(${tx}px, ${ty}px) scale(${k})`;
-    const z = $("#zoomv"), d = $("#dimv");
-    if (z) z.textContent = Math.round(k * 100) + "%";
-    if (d) d.textContent = `${W} × ${H} px`;
+    if (readout) readout.innerHTML = `${Math.round(k * 100)}%<br>${W} × ${H} px`;
     stage.querySelectorAll(".hit").forEach(h => {
       h.firstElementChild.style.transform = `scale(${1 / k})`;
       // A label needs room of its own, not merely a visible box.
@@ -834,8 +695,8 @@ function mount(ev) {
     if (seam && cmp) seam.style.left = (tx + W * k * cut) + "px";
   }
   function fit() {
-    const r = plate.getBoundingClientRect();
-    k = Math.min(r.width / W, (r.height - 60) / H) * 0.94;
+    const r = viewer.getBoundingClientRect();
+    k = Math.min(r.width / W, r.height / H) * 0.92;
     tx = (r.width - W * k) / 2;
     ty = (r.height - H * k) / 2;
     draw();
@@ -856,37 +717,37 @@ function mount(ev) {
       const sx = space ? W / space[0] : 1, sy = space ? H / space[1] : 1;
       $("#hits").innerHTML = hits.map(([a, b, c, d], i) =>
         `<div class="hit" style="left:${a * sx}px;top:${b * sy}px;width:${(c - a) * sx}px;height:${(d - b) * sy}px;
-          animation-delay:${still ? 0 : Math.min(i * 24, 750)}ms"><b>${esc(ev.label || "match")}</b></div>`).join("");
+          animation-delay:${still ? 0 : Math.min(i * 26, 800)}ms"><b>${esc(ev.label || "match")}</b></div>`).join("");
     }
     fit();
   };
   if (fig.complete && fig.naturalWidth) fig.onload();
 
   let down = false, px = 0, py = 0;
-  plate.addEventListener("pointerdown", e => {
-    if (e.target.closest(".hud") || e.target.closest(".seam") || e.target.closest(".bounds")) return;
-    down = true; px = e.clientX; py = e.clientY; plate.setPointerCapture(e.pointerId);
+  viewer.addEventListener("pointerdown", e => {
+    if (e.target.closest(".tools") || e.target.closest(".seam") || e.target.closest(".keys")) return;
+    down = true; px = e.clientX; py = e.clientY; viewer.setPointerCapture(e.pointerId);
   }, on);
-  plate.addEventListener("pointermove", e => {
+  viewer.addEventListener("pointermove", e => {
     if (!down) return;
     tx += e.clientX - px; ty += e.clientY - py; px = e.clientX; py = e.clientY; draw();
   }, on);
-  plate.addEventListener("pointerup", e => {
+  viewer.addEventListener("pointerup", e => {
     down = false;
-    try { plate.releasePointerCapture(e.pointerId); } catch (err) { /* already released */ }
+    try { viewer.releasePointerCapture(e.pointerId); } catch (err) { /* already released */ }
   }, on);
-  plate.addEventListener("wheel", e => {
+  viewer.addEventListener("wheel", e => {
     e.preventDefault();
-    const r = plate.getBoundingClientRect();
+    const r = viewer.getBoundingClientRect();
     zoom(e.clientX - r.left, e.clientY - r.top, e.deltaY < 0 ? 1.16 : 1 / 1.16);
-  }, { passive: false, signal: plateHandlers.signal });
-  plate.addEventListener("dblclick", e => {
-    if (e.target.closest(".hud")) return;
-    const r = plate.getBoundingClientRect();
+  }, { passive: false, signal: handlers.signal });
+  viewer.addEventListener("dblclick", e => {
+    if (e.target.closest(".tools")) return;
+    const r = viewer.getBoundingClientRect();
     zoom(e.clientX - r.left, e.clientY - r.top, 1.9);
   }, on);
-  plate.querySelectorAll("[data-z]").forEach(b => b.onclick = () => {
-    const r = plate.getBoundingClientRect();
+  viewer.querySelectorAll("[data-z]").forEach(b => b.onclick = () => {
+    const r = viewer.getBoundingClientRect();
     if (b.dataset.z === "fit") fit();
     else zoom(r.width / 2, r.height / 2, b.dataset.z === "in" ? 1.45 : 1 / 1.45);
   });
@@ -896,7 +757,7 @@ function mount(ev) {
     if (peel) peel.style.clipPath = `inset(0 ${(1 - cut) * 100}% 0 0)`;
     if (seam) seam.style.left = (tx + W * k * cut) + "px";
   }
-  // Hidden until split is switched on: the overlay already carries drawn
+  // Hidden until compare is switched on: the overlay already carries drawn
   // annotation, so showing it under the live detections doubles every box.
   if (peel) peel.style.clipPath = "inset(0 100% 0 0)";
 
@@ -912,7 +773,7 @@ function mount(ev) {
     seam.addEventListener("pointerdown", e => { dv = true; e.stopPropagation(); seam.setPointerCapture(e.pointerId); });
     seam.addEventListener("pointermove", e => {
       if (!dv) return;
-      const r = plate.getBoundingClientRect();
+      const r = viewer.getBoundingClientRect();
       setCut((e.clientX - r.left - tx) / (W * k));
     });
     seam.addEventListener("pointerup", e => {
