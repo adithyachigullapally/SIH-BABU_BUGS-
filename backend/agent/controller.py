@@ -142,6 +142,63 @@ def _summarize(name, result):
 CONFIDENCE_BASE = 0.85
 
 
+def _measurements(tool, result):
+    """The tool's headline figures, structured, for a UI that shows numbers.
+
+    The narration already carries these in prose, but a caller that wants to
+    display them should not have to parse a sentence to get them back.
+    """
+    def m(label, value, unit=""):
+        return {"label": label, "value": value, "unit": unit}
+
+    if tool == "run_land_cover":
+        cov, res = result.get("coverage", {}), result.get("resolution_m")
+        out = []
+        for key, label in (("vegetation", "vegetation"),
+                           ("water", "water"),
+                           ("built_up_or_bare", "built-up / bare")):
+            entry = cov.get(key) or {}
+            if entry.get("percent") is None:
+                continue
+            out.append(m(label, entry["hectares"] if res else entry["percent"],
+                         "ha" if res else "%"))
+        if result.get("scene_hectares"):
+            out.append(m("scene", result["scene_hectares"], "ha"))
+        return out
+
+    if tool == "run_change_analysis":
+        return [m("changed", result.get("change_percent"), "%"),
+                m("regions", result.get("region_count")),
+                m("changed pixels", result.get("changed_pixels"), "px")]
+
+    if tool == "run_fusion_analysis":
+        cov = result.get("coverage_percent", {})
+        return [m("water agreed", cov.get("water_both_agree"), "%"),
+                m("built-up agreed", cov.get("built_up_both_agree"), "%"),
+                m("vegetation", cov.get("vegetation"), "%"),
+                m("flooded vegetation", cov.get("possible_flooded_vegetation"), "%")]
+
+    if tool == "run_grounding":
+        return [m("detections", result.get("count"))]
+
+    return []
+
+
+def _thresholds(result):
+    """The index and cutoff each class was decided by, so a reader can audit it."""
+    out = {}
+    for key in ("vegetation_index", "water_index"):
+        if result.get(key):
+            out[key.replace("_index", "")] = result[key]
+    if result.get("threshold") is not None:
+        out["change"] = f"mean + 3sd = {result['threshold']}"
+    if result.get("has_nir") is not None:
+        out["nir"] = "present" if result["has_nir"] else "absent"
+    if result.get("resolution_m"):
+        out["gsd"] = f"{result['resolution_m']} m/px"
+    return out
+
+
 def _confidence(tool, result, profiles, used_fallback):
     """An explainable number, not a vibe: named signals, each with a stated weight.
 
@@ -307,6 +364,8 @@ def analyze(query, images, profiles, out_dir, job_id=None, resolution_m=None):
         "confidence": confidence,
         "confidence_reasons": reasons,
         "confidence_base": CONFIDENCE_BASE,
+        "measurements": _measurements(tool_name, tool_result or {}),
+        "thresholds": _thresholds(tool_result or {}),
         "confidence_deductions": deductions,
         "task_classified": tool_name,
         "llm_provider": provider,

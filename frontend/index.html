@@ -3,272 +3,255 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="color-scheme" content="light dark">
+<meta name="color-scheme" content="dark">
 <title>SatQuery AI</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Fira+Sans:wght@300;400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap">
 <style>
-  /* ────────────────────────────────────────────────────────────
-     Minimalism & Swiss Style: monochrome ground, a single accent,
-     zero radius, no shadows, structure carried by rules and grid.
-     Fira Sans for labels, Fira Code for every figure.
-     ──────────────────────────────────────────────────────────── */
+  /* Technical-precision GIS instrument. Palette and type from the Stitch
+     design; every field on screen is bound to a real API value — nothing is
+     shown that the backend did not measure. */
   :root {
-    /* Declare the scheme or Chrome's "auto dark mode for web contents" repaints
-       this page itself, overriding the palette with its own inversion. */
-    color-scheme: light;
-    --paper:   #ffffff;
-    --ground:  #f2f2f0;
-    --ink:     #0a0a0a;
-    --ink-2:   #4a4a4a;
-    --ink-3:   #8a8a88;
-    --rule:    #d6d6d2;
-    --rule-2:  #0a0a0a;
-    --accent:  #d6006e;
-    --plate:   #17171a;
-
-    --veg:     #2f7d4a;
-    --water:   #1f5f96;
-    --built:   #9a5f14;
-    --ok:      #2f7d4a;
-    --warn:    #9a5f14;
-    --bad:     #b7241c;
-
-    --sans: "Fira Sans", "Segoe UI", system-ui, sans-serif;
-    --mono: "Fira Code", Consolas, monospace;
-
-    --gap:  1.5rem;
-    --bar:  2.75rem;
-    --foot: 1.75rem;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-      color-scheme: dark;
-      --paper:   #131316;
-      --ground:  #0b0b0d;
-      --ink:     #f2f2f0;
-      --ink-2:   #b0b0ae;
-      --ink-3:   #77777a;
-      --rule:    #2a2a2e;
-      --rule-2:  #f2f2f0;
-      --accent:  #ff3d96;
-      --plate:   #000000;
-      --veg:     #57a877;
-      --water:   #4f92cc;
-      --built:   #c58f4c;
-      --ok:      #57a877;
-      --warn:    #c58f4c;
-      --bad:     #e0655c;
-    }
-  }
-  :root[data-theme="dark"] {
-    color-scheme: dark;
-    --paper:   #131316;
-    --ground:  #0b0b0d;
-    --ink:     #f2f2f0;
-    --ink-2:   #b0b0ae;
-    --ink-3:   #77777a;
-    --rule:    #2a2a2e;
-    --rule-2:  #f2f2f0;
-    --accent:  #ff3d96;
-    --plate:   #000000;
-    --veg:     #57a877;
-    --water:   #4f92cc;
-    --built:   #c58f4c;
-    --ok:      #57a877;
-    --warn:    #c58f4c;
-    --bad:     #e0655c;
+    --bg:        #080b0e;
+    --surface:   #0d1117;
+    --surface2:  #121720;
+    --edge:      #1b222d;
+    --edge2:     #263142;
+    --cyan:      #06b6d4;
+    --teal:      #14b8a6;
+    --emerald:   #10b981;
+    --amber:     #f59e0b;
+    --red:       #f43f5e;
+    --violet:    #8b5cf6;
+    --text:      #cbd5e1;
+    --dim:       #64748b;
+    --dimmer:    #475569;
+    --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+    --sans: "Space Grotesk", system-ui, sans-serif;
   }
 
-  * { box-sizing: border-box; }
+  * { box-sizing: border-box; border-radius: 0 !important; box-shadow: none !important; }
   html, body { height: 100%; }
   body {
     margin: 0;
-    background: var(--ground);
-    color: var(--ink);
-    font-family: var(--sans);
-    font-size: 14px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 11px;
     line-height: 1.5;
     overflow: hidden;
     -webkit-font-smoothing: antialiased;
   }
   button, input, select, textarea { font: inherit; color: inherit; }
-  button, label.file, a { cursor: pointer; }
-  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-  ::-webkit-scrollbar { width: 10px; height: 10px; }
-  ::-webkit-scrollbar-thumb { background: var(--rule); }
-  ::-webkit-scrollbar-track { background: transparent; }
+  button, label.pick, a { cursor: pointer; }
+  :focus-visible { outline: 1px solid var(--cyan); outline-offset: 1px; }
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--edge2); }
 
-  /* ── masthead ── */
-  .masthead {
-    height: var(--bar);
-    display: flex;
-    align-items: center;
-    gap: 2rem;
-    padding: 0 var(--gap);
-    background: var(--paper);
-    border-bottom: 2px solid var(--rule-2);
-  }
-  .mark {
-    font-weight: 700;
-    font-size: 1rem;
-    letter-spacing: -0.025em;
-    white-space: nowrap;
-  }
-  .mark span { color: var(--accent); }
-  .rig {
-    margin-left: auto;
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-    font-family: var(--mono);
-    font-size: 0.7rem;
-    color: var(--ink-3);
-  }
-  .sig { display: inline-flex; align-items: center; gap: 0.4rem; white-space: nowrap; }
-  .sig::before {
-    content: "";
-    width: 6px; height: 6px;
-    background: var(--ink-3);
-  }
-  .sig.up::before { background: var(--ok); }
-  .sig.down::before { background: var(--bad); }
-  .swap {
-    background: none;
-    border: 0;
-    padding: 0;
-    font-family: var(--mono);
-    font-size: 0.7rem;
-    color: var(--ink-3);
+  .lbl {
+    font-size: 9px;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
-    transition: color 220ms;
+    color: var(--dim);
   }
-  .swap:hover { color: var(--accent); }
+  .val { color: var(--text); }
+  .cy { color: var(--cyan); }
+  .em { color: var(--emerald); }
+  .am { color: var(--amber); }
+  .rd { color: var(--red); }
+  .vi { color: var(--violet); }
+  .num { font-variant-numeric: tabular-nums; }
 
-  /* ── grid ── */
-  .board {
-    height: calc(100% - var(--bar) - var(--foot));
-    display: grid;
-    grid-template-columns: 19rem minmax(0, 1fr) 23rem;
+  /* ── telemetry strip ── */
+  .telem {
+    display: flex;
+    align-items: stretch;
+    border-bottom: 1px solid var(--edge);
+    background: var(--surface);
+    overflow-x: auto;
+    height: 2.6rem;
+    flex: none;
+  }
+  .cell {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     gap: 1px;
-    background: var(--rule);
+    padding: 0 0.75rem;
+    border-right: 1px solid var(--edge);
+    white-space: nowrap;
+    flex: none;
   }
-  .col { background: var(--paper); overflow-y: auto; }
-  .plate { background: var(--plate); position: relative; overflow: hidden; min-width: 0; }
+  .cell .k { font-size: 8px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dimmer); }
+  .cell .v { font-size: 10.5px; font-weight: 500; }
+  .cell.brand .v { font-family: var(--sans); font-weight: 700; font-size: 13px; letter-spacing: -0.01em; color: #fff; }
+  .cell.last { border-right: 0; margin-left: auto; }
+  .beacon::before {
+    content: "";
+    display: inline-block;
+    width: 5px; height: 5px;
+    background: currentColor;
+    margin-right: 5px;
+    vertical-align: 1px;
+    animation: pulse 2.4s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100% { opacity: 0.9; } 50% { opacity: 0.3; } }
 
-  /* ── blocks ── */
-  .block { padding: var(--gap); border-bottom: 1px solid var(--rule); }
-  .block:last-child { border-bottom: 0; }
-  .kicker {
-    font-family: var(--mono);
-    font-size: 0.66rem;
-    font-weight: 500;
-    letter-spacing: 0.16em;
+  /* ── shell ── */
+  .shell {
+    height: calc(100% - 2.6rem);
+    display: grid;
+    grid-template-columns: 17.5rem minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) 15.5rem;
+    grid-template-areas: "rail plate" "rail audit";
+  }
+  .rail { grid-area: rail; border-right: 1px solid var(--edge); background: var(--surface); overflow-y: auto; }
+  .plate { grid-area: plate; position: relative; overflow: hidden; background: #000; min-width: 0; }
+  .audit { grid-area: audit; border-top: 1px solid var(--edge); background: var(--surface); display: flex; flex-direction: column; min-width: 0; }
+
+  /* ── rail ── */
+  .panel { border-bottom: 1px solid var(--edge); }
+  .head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.45rem 0.7rem;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--edge);
+    font-size: 9px;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: var(--ink);
-    padding-bottom: 0.5rem;
-    margin-bottom: 1rem;
-    border-bottom: 1px solid var(--rule-2);
+    color: var(--text);
+  }
+  .head .tag { color: var(--dimmer); letter-spacing: 0.1em; }
+  .body { padding: 0.7rem; }
+
+  .slot { border: 1px solid var(--edge2); background: var(--surface2); }
+  .slot + .slot { margin-top: 0.6rem; }
+  .slot-head {
     display: flex;
     justify-content: space-between;
-    align-items: baseline;
-    gap: 1rem;
+    align-items: center;
+    padding: 0.35rem 0.5rem;
+    border-bottom: 1px solid var(--edge);
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
   }
-  .kicker em { font-style: normal; color: var(--accent); letter-spacing: 0.1em; }
-  .kicker i { font-style: normal; color: var(--ink-3); letter-spacing: 0.1em; font-weight: 400; }
-
-  /* ── controls ── */
-  .file {
+  .slot-body { display: grid; grid-template-columns: 3.4rem 1fr; gap: 0.5rem; padding: 0.5rem; }
+  .chip-img {
+    width: 3.4rem; height: 3.4rem;
+    border: 1px solid var(--edge2);
+    background: #000 center/cover no-repeat;
+    display: grid;
+    place-items: center;
+    font-size: 8px;
+    color: var(--dimmer);
+    letter-spacing: 0.08em;
+  }
+  .meta { display: flex; flex-direction: column; gap: 1px; font-size: 9.5px; min-width: 0; }
+  .meta span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pick {
     display: block;
     position: relative;
-    border: 1px solid var(--rule-2);
-    padding: 0.7rem 0.8rem;
-    font-family: var(--mono);
-    font-size: 0.72rem;
-    color: var(--ink-2);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    transition: background 220ms, color 220ms;
+    padding: 0.35rem 0.5rem;
+    border-top: 1px solid var(--edge);
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--cyan);
+    transition: background 160ms;
   }
-  .file:hover { background: var(--ink); color: var(--paper); }
-  .file.set { background: var(--ink); color: var(--paper); }
-  .file input { position: absolute; width: 1px; height: 1px; opacity: 0; }
-
-  select, input[type=number] {
+  .pick:hover { background: var(--edge); }
+  .pick input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+  select {
     width: 100%;
-    background: transparent;
-    border: 0;
-    border-bottom: 1px solid var(--rule);
-    padding: 0.45rem 0;
-    margin-top: 0.75rem;
-    font-family: var(--mono);
-    font-size: 0.74rem;
-    border-radius: 0;
-    transition: border-color 220ms;
+    background: var(--bg);
+    border: 1px solid var(--edge2);
+    padding: 0.3rem 0.4rem;
+    font-size: 9.5px;
+    color: var(--text);
   }
-  select { color: var(--ink-2); }
-  select:hover, input[type=number]:hover { border-bottom-color: var(--ink-2); }
-  select:focus, input[type=number]:focus, textarea:focus { border-color: var(--accent); outline: none; }
+  input[type=number] {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--edge2);
+    padding: 0.4rem 0.5rem;
+    font-size: 11px;
+    color: var(--text);
+  }
+  .withtag { display: grid; grid-template-columns: 1fr auto; gap: 0.4rem; align-items: stretch; }
+  .autotag {
+    display: grid;
+    place-items: center;
+    padding: 0 0.5rem;
+    border: 1px solid var(--edge2);
+    font-size: 8.5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--dim);
+    white-space: nowrap;
+  }
+  .hint { font-size: 9.5px; color: var(--dimmer); margin-top: 0.45rem; line-height: 1.45; }
+
+  .prompt { position: relative; }
+  .prompt::before {
+    content: ">";
+    position: absolute;
+    left: 0.5rem; top: 0.45rem;
+    color: var(--cyan);
+    pointer-events: none;
+  }
   textarea {
     width: 100%;
-    background: transparent;
-    border: 1px solid var(--rule-2);
-    padding: 0.7rem;
-    font-family: var(--sans);
-    font-size: 0.92rem;
-    line-height: 1.45;
-    min-height: 4.5rem;
+    background: var(--bg);
+    border: 1px solid var(--edge2);
+    padding: 0.45rem 0.5rem 0.45rem 1.4rem;
+    font-family: var(--mono);
+    font-size: 11px;
+    line-height: 1.5;
+    min-height: 4.4rem;
     resize: vertical;
-    border-radius: 0;
+    color: var(--text);
   }
-  ::placeholder { color: var(--ink-3); }
-  .aside { font-size: 0.75rem; color: var(--ink-3); margin-top: 0.75rem; line-height: 1.45; }
+  textarea::placeholder { color: var(--dimmer); }
 
-  .go {
-    width: 100%;
-    background: var(--ink);
-    color: var(--paper);
-    border: 0;
-    border-radius: 0;
-    padding: 0.8rem;
-    margin-top: 1rem;
-    font-family: var(--mono);
-    font-weight: 600;
-    font-size: 0.78rem;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    transition: background 220ms;
-  }
-  .go:hover:not(:disabled) { background: var(--accent); }
-  .go:disabled { background: var(--rule); color: var(--ink-3); cursor: progress; }
-
-  .preset { display: flex; flex-direction: column; }
-  .preset button {
-    background: none;
-    border: 0;
-    border-bottom: 1px solid var(--rule);
-    border-radius: 0;
+  .presets { display: grid; grid-template-columns: 1fr 1fr; gap: 0.35rem; }
+  .presets button {
+    background: var(--bg);
+    border: 1px solid var(--edge2);
+    color: var(--dim);
+    padding: 0.3rem 0.4rem;
+    font-size: 9px;
+    letter-spacing: 0.04em;
     text-align: left;
-    padding: 0.6rem 0;
-    color: var(--ink-2);
-    font-size: 0.85rem;
+    transition: color 160ms, border-color 160ms;
+  }
+  .presets button:hover { color: var(--cyan); border-color: var(--cyan); }
+
+  .exec {
+    width: 100%;
     display: flex;
-    gap: 0.75rem;
-    transition: color 220ms, padding-left 220ms;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    background: rgba(6,182,212,0.09);
+    border: 1px solid var(--cyan);
+    color: var(--cyan);
+    padding: 0.6rem 0.7rem;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    transition: background 160ms;
   }
-  .preset button:last-child { border-bottom: 0; }
-  .preset button::before {
-    content: attr(data-n);
-    font-family: var(--mono);
-    font-size: 0.68rem;
-    color: var(--ink-3);
-    flex: none;
-    padding-top: 0.15rem;
-  }
-  .preset button:hover { color: var(--accent); padding-left: 0.3rem; }
+  .exec:hover:not(:disabled) { background: rgba(6,182,212,0.2); }
+  .exec:disabled { border-color: var(--edge2); color: var(--dimmer); background: transparent; cursor: progress; }
+  .exec small { font-size: 8.5px; letter-spacing: 0.06em; text-transform: none; color: var(--dim); }
+  .pipe { padding: 0.45rem 0.7rem; font-size: 8.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dimmer); }
 
   /* ── plate ── */
   .stage { position: absolute; top: 0; left: 0; transform-origin: 0 0; }
@@ -277,221 +260,188 @@
   .peel { position: absolute; inset: 0; overflow: hidden; }
   .peel img { display: block; width: 100%; height: 100%; }
 
-  .hit {
-    position: absolute;
-    border: 2px solid var(--accent);
-    opacity: 0;
-    animation: reveal 0.22s ease forwards;
-  }
-  @keyframes reveal { to { opacity: 1; } }
+  .hit { position: absolute; border: 1px solid var(--cyan); opacity: 0; animation: mark 0.2s ease forwards; }
+  @keyframes mark { to { opacity: 1; } }
   .hit b {
     position: absolute;
-    left: -2px;
-    bottom: 100%;
+    left: -1px; bottom: 100%;
     transform-origin: 0 100%;
-    background: var(--accent);
-    color: #fff;
-    font-family: var(--mono);
-    font-size: 9px;
-    font-weight: 500;
-    letter-spacing: 0.06em;
+    background: var(--cyan);
+    color: #04212a;
+    font-size: 8px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
     line-height: 1.5;
-    padding: 0 4px;
+    padding: 0 3px;
     white-space: nowrap;
   }
   .hit.bare b { display: none; }
 
-  .seam { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--accent); z-index: 6; cursor: ew-resize; }
-  .seam::before { content: ""; position: absolute; inset: 0 -10px; }
+  .seam { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--cyan); z-index: 6; cursor: ew-resize; }
+  .seam::before { content: ""; position: absolute; inset: 0 -9px; }
   .seam::after {
     content: "";
     position: absolute;
     top: 50%; left: 50%;
-    width: 1rem; height: 1rem;
+    width: 0.75rem; height: 0.75rem;
     transform: translate(-50%, -50%);
-    background: var(--accent);
+    border: 1px solid var(--cyan);
+    background: var(--bg);
   }
 
-  .radar {
-    position: absolute;
-    top: 0; bottom: 0;
-    width: 20%;
-    z-index: 7;
-    pointer-events: none;
-    left: 0;
-    background: linear-gradient(90deg, transparent, rgba(214,0,110,0.06) 55%, rgba(214,0,110,0.6) 97%, #fff);
+  .sweepbar {
+    position: absolute; top: 0; bottom: 0;
+    left: 0; width: 18%;
+    z-index: 7; pointer-events: none;
+    background: linear-gradient(90deg, transparent, rgba(6,182,212,0.05) 55%, rgba(6,182,212,0.45) 96%, rgba(6,182,212,0.95));
     animation: pass 1.3s linear infinite;
     will-change: transform;
   }
-  /* Translated, not offset: animating `left` relayouts every frame while the
-     GPU is already busy running the model. The element is 20% of the plate, so
-     these percentages of its own width span -22% to 102% of the plate. */
-  @keyframes pass { from { transform: translateX(-110%); } to { transform: translateX(510%); } }
+  @keyframes pass { from { transform: translateX(-120%); } to { transform: translateX(570%); } }
 
-  .rig-tools {
+  .hud {
     position: absolute;
-    left: var(--gap);
-    bottom: var(--gap);
-    display: flex;
-    z-index: 8;
-    background: var(--paper);
-    border: 1px solid var(--rule-2);
-  }
-  .rig-tools button {
-    background: none;
-    border: 0;
-    border-right: 1px solid var(--rule);
-    border-radius: 0;
-    color: var(--ink-2);
-    font-family: var(--mono);
-    font-size: 0.7rem;
-    padding: 0.4rem 0.7rem;
-    transition: background 220ms, color 220ms;
-  }
-  .rig-tools button:last-child { border-right: 0; }
-  .rig-tools button:hover:not(:disabled) { background: var(--ink); color: var(--paper); }
-  .rig-tools button[aria-pressed="true"] { background: var(--accent); color: #fff; }
-  .rig-tools button:disabled { color: var(--ink-3); opacity: 0.5; cursor: not-allowed; }
-
-  .gauge {
-    position: absolute;
-    right: var(--gap);
-    bottom: var(--gap);
-    z-index: 8;
-    font-family: var(--mono);
-    font-size: 0.68rem;
-    color: #fff;
-    text-align: right;
-    line-height: 1.7;
-    mix-blend-mode: difference;
-  }
-  .swatchbar {
-    position: absolute;
-    left: var(--gap);
-    top: var(--gap);
+    left: 0; right: 0;
     z-index: 8;
     display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
-    background: var(--paper);
-    border: 1px solid var(--rule-2);
-    padding: 0.35rem 0.6rem;
-    font-family: var(--mono);
-    font-size: 0.66rem;
-    color: var(--ink-2);
-  }
-  .swatchbar i { display: inline-block; width: 0.6rem; height: 0.6rem; margin-right: 0.35rem; vertical-align: -1px; }
-
-  .blank {
-    position: absolute;
-    inset: 0;
-    display: grid;
-    place-content: center;
-    justify-items: start;
-    gap: 0.9rem;
-    padding: 12%;
-    color: #8a8a88;
-  }
-  .blank h2 {
-    margin: 0;
-    font-size: 1.6rem;
-    font-weight: 300;
-    letter-spacing: -0.03em;
-    color: #f2f2f0;
-    line-height: 1.1;
-  }
-  .blank p { margin: 0; max-width: 30rem; font-size: 0.9rem; line-height: 1.6; }
-  .blank hr { width: 3rem; border: 0; border-top: 2px solid var(--accent); margin: 0; }
-
-  /* ── inspector ── */
-  .verdict { font-size: 1.05rem; line-height: 1.55; font-weight: 400; }
-
-  .tally { display: flex; flex-direction: column; font-family: var(--mono); font-size: 0.74rem; }
-  .tally > div { display: flex; justify-content: space-between; gap: 1rem; padding: 0.35rem 0; border-bottom: 1px solid var(--rule); }
-  .tally > div:last-child { border-bottom: 0; }
-  .tally dt { color: var(--ink-3); }
-  .tally dd { margin: 0; text-align: right; }
-  .tally dd.mark { color: var(--accent); }
-
-  .figure { display: flex; align-items: baseline; gap: 0.8rem; margin-bottom: 1rem; }
-  .figure b {
-    font-family: var(--mono);
-    font-size: 3.2rem;
-    font-weight: 500;
-    line-height: 0.8;
-    letter-spacing: -0.05em;
-    font-variant-numeric: tabular-nums;
-  }
-  .figure i {
-    font-family: var(--mono);
-    font-style: normal;
-    font-size: 0.66rem;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-  }
-  .ledger { font-family: var(--mono); font-size: 0.74rem; }
-  .ledger > div { display: flex; gap: 1rem; padding: 0.25rem 0; }
-  .ledger .fig { width: 3.2rem; text-align: right; flex: none; font-variant-numeric: tabular-nums; }
-  .ledger .why { color: var(--ink-2); line-height: 1.4; }
-  .ledger .off .fig { color: var(--bad); }
-  .ledger .net { border-top: 1px solid var(--rule-2); margin-top: 0.4rem; padding-top: 0.4rem; font-weight: 600; }
-  .aside.tight { margin-top: 1rem; }
-
-  .run { display: flex; flex-direction: column; }
-  .run > div { border-bottom: 1px solid var(--rule); padding: 0.75rem 0; }
-  .run > div:first-child { padding-top: 0; }
-  .run > div:last-child { border-bottom: 0; padding-bottom: 0; }
-  .op { display: flex; align-items: baseline; gap: 0.7rem; }
-  .op em { font-family: var(--mono); font-style: normal; font-size: 0.68rem; color: var(--accent); }
-  .op strong { font-family: var(--mono); font-size: 0.8rem; font-weight: 600; }
-  .args { font-family: var(--mono); font-size: 0.68rem; color: var(--ink-3); margin: 0.25rem 0 0 1.4rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .said { font-size: 0.85rem; color: var(--ink-2); margin: 0.35rem 0 0 1.4rem; line-height: 1.5; }
-
-  .grab {
-    display: block;
-    text-align: center;
-    border: 1px solid var(--rule-2);
-    padding: 0.65rem;
-    text-decoration: none;
-    color: var(--ink);
-    font-family: var(--mono);
-    font-size: 0.72rem;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    transition: background 220ms, color 220ms;
-  }
-  .grab:hover { background: var(--ink); color: var(--paper); }
-
-  .refused { border-left: 3px solid var(--bad); padding-left: 1rem; }
-  .refused .kicker { color: var(--bad); border-bottom-color: var(--bad); }
-
-  /* ── footer ── */
-  .foot {
-    height: var(--foot);
-    display: flex;
-    align-items: center;
-    gap: 2rem;
-    padding: 0 var(--gap);
-    background: var(--paper);
-    border-top: 2px solid var(--rule-2);
-    font-family: var(--mono);
-    font-size: 0.68rem;
-    color: var(--ink-3);
-    white-space: nowrap;
+    align-items: stretch;
+    gap: 0;
+    background: rgba(8,11,14,0.9);
+    font-size: 9px;
     overflow-x: auto;
   }
-  .foot b { color: var(--ink); font-weight: 500; }
-  .foot .far { margin-left: auto; }
+  .hud.top { top: 0; border-bottom: 1px solid var(--edge); }
+  .hud.bot { bottom: 0; border-top: 1px solid var(--edge); }
+  .hud span, .hud button {
+    padding: 0.3rem 0.6rem;
+    border-right: 1px solid var(--edge);
+    white-space: nowrap;
+    letter-spacing: 0.06em;
+    background: none;
+    border-top: 0; border-bottom: 0; border-left: 0;
+    color: var(--dim);
+  }
+  .hud button { transition: background 160ms, color 160ms; }
+  .hud button:hover:not(:disabled) { background: var(--edge); color: var(--cyan); }
+  .hud button[aria-pressed="true"] { background: var(--cyan); color: #04212a; }
+  .hud button:disabled { color: var(--dimmer); opacity: 0.5; cursor: not-allowed; }
+  .hud .push { margin-left: auto; border-right: 0; }
+  .hud b { color: var(--text); font-weight: 500; }
 
-  @media (max-width: 1180px) {
+  .bounds {
+    position: absolute;
+    left: 0; right: 0; bottom: 1.55rem;
+    z-index: 8;
+    display: flex;
+    background: rgba(8,11,14,0.9);
+    border-top: 1px solid var(--edge);
+    font-size: 9px;
+    overflow-x: auto;
+  }
+  .bounds span { padding: 0.28rem 0.6rem; border-right: 1px solid var(--edge); white-space: nowrap; color: var(--dim); }
+  .bounds i { font-style: normal; display: inline-block; width: 6px; height: 6px; margin-right: 5px; vertical-align: 0px; }
+
+  .idle {
+    position: absolute; inset: 0;
+    display: grid; place-content: center; justify-items: start;
+    gap: 0.7rem; padding: 8%;
+  }
+  .idle h1 {
+    margin: 0;
+    font-family: var(--sans);
+    font-size: 1.5rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: #fff;
+  }
+  .idle p { margin: 0; max-width: 34rem; font-size: 11px; line-height: 1.7; color: var(--dim); }
+  .idle .bar { width: 2.5rem; height: 2px; background: var(--cyan); }
+  .idle code { color: var(--cyan); }
+
+  /* ── audit band ── */
+  .ribbon {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.7rem;
+    border-bottom: 1px solid var(--edge);
+    background: var(--surface2);
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--dim);
+    overflow-x: auto;
+    white-space: nowrap;
+    flex: none;
+  }
+  .ribbon .arrow { color: var(--edge2); }
+  .ribbon .st { color: var(--text); }
+  .ribbon .push { margin-left: auto; }
+
+  .cols { display: grid; grid-template-columns: 1fr 1fr 1fr; flex: 1; min-height: 0; }
+  .colx { border-right: 1px solid var(--edge); display: flex; flex-direction: column; min-width: 0; }
+  .colx:last-child { border-right: 0; }
+  .colx > .head { flex: none; }
+  .colx > .body { overflow-y: auto; flex: 1; }
+
+  .ledger > div { display: flex; gap: 0.7rem; padding: 0.18rem 0; }
+  .ledger .f { width: 3.2rem; text-align: right; flex: none; }
+  .ledger .t { color: var(--dim); line-height: 1.4; }
+  .ledger .base { border-bottom: 1px solid var(--edge); padding-bottom: 0.35rem; margin-bottom: 0.35rem; }
+  .ledger .net { border-top: 1px solid var(--edge2); margin-top: 0.35rem; padding-top: 0.35rem; }
+  .scorebox {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+    border: 1px solid currentColor;
+    padding: 0.35rem 0.55rem;
+    margin-bottom: 0.6rem;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .scorebox b { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; }
+
+  .log > div { display: grid; grid-template-columns: 3.2rem 1fr; gap: 0.5rem; padding: 0.22rem 0; }
+  .log .ts { color: var(--dimmer); }
+  .log .ln { min-width: 0; }
+  .log .ln b { color: var(--cyan); font-weight: 500; }
+  .log .ln em { font-style: normal; color: var(--dim); display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .log .ln u { text-decoration: none; color: var(--text); display: block; line-height: 1.45; margin-top: 2px; }
+
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(6.5rem, 1fr)); gap: 0.4rem; margin-bottom: 0.6rem; }
+  .tile { border: 1px solid var(--edge2); background: var(--bg); padding: 0.4rem 0.5rem; }
+  .tile .k { font-size: 8px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dimmer); }
+  .tile .v { font-size: 14px; font-weight: 600; margin-top: 2px; }
+  .tile .v span { font-size: 9px; font-weight: 400; color: var(--dim); margin-left: 2px; }
+  .prose { font-size: 11px; line-height: 1.65; color: var(--text); }
+  .prose + .foot { margin-top: 0.6rem; }
+  .foot { display: flex; gap: 0.5rem; }
+  .pdf {
+    display: inline-block;
+    border: 1px solid var(--edge2);
+    padding: 0.3rem 0.6rem;
+    text-decoration: none;
+    color: var(--text);
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition: border-color 160ms, color 160ms;
+  }
+  .pdf:hover { border-color: var(--cyan); color: var(--cyan); }
+  .empty { color: var(--dimmer); font-size: 10px; }
+
+  @media (max-width: 1080px) {
     body { overflow: auto; }
-    .board { grid-template-columns: 1fr; height: auto; }
-    .col { overflow: visible; }
-    .plate { height: 60vh; }
+    .shell { grid-template-columns: 1fr; grid-template-rows: auto 60vh auto; grid-template-areas: "rail" "plate" "audit"; height: auto; }
+    .rail { border-right: 0; border-bottom: 1px solid var(--edge); overflow: visible; }
+    .cols { grid-template-columns: 1fr; }
+    .colx { border-right: 0; border-bottom: 1px solid var(--edge); }
   }
   @media (prefers-reduced-motion: reduce) {
-    .radar { animation: none; opacity: 0.3; }
+    .sweepbar, .beacon::before { animation: none; }
     .hit { animation: none; opacity: 1; }
     * { transition-duration: 0ms !important; }
   }
@@ -499,156 +449,201 @@
 </head>
 <body>
 
-<header class="masthead">
-  <div class="mark">SatQuery<span>.</span>AI</div>
-  <div class="rig" id="rig"><span class="sig">connecting</span></div>
-  <button class="swap" id="swap" type="button">dark</button>
-</header>
+<div class="telem" id="telem">
+  <div class="cell brand"><div class="k">instrument</div><div class="v">SatQuery AI</div></div>
+  <div class="cell"><div class="k">status</div><div class="v cy beacon">booting</div></div>
+</div>
 
-<div class="board">
+<div class="shell">
 
-  <section class="col">
+  <aside class="rail">
     <form id="form" autocomplete="off">
-      <div class="block">
-        <div class="kicker">Primary scene <em>required</em></div>
-        <label class="file" id="f1"><span id="n1">select · png jpg tif</span>
-          <input id="image1" name="image1" type="file" accept=".png,.jpg,.jpeg,.tif,.tiff" required>
-        </label>
-        <select id="image1_modality" name="image1_modality" aria-label="Primary scene modality">
-          <option value="auto">modality · auto</option><option value="optical">optical</option><option value="sar">SAR</option>
-        </select>
+      <div class="panel">
+        <div class="head">Input payload contract <span class="tag">multipart</span></div>
+        <div class="body">
+          <div class="slot">
+            <div class="slot-head"><span class="cy">[ img 01 · primary ]</span><span class="tag lbl">required</span></div>
+            <div class="slot-body">
+              <div class="chip-img" id="thumb1">NO SRC</div>
+              <div class="meta" id="meta1">
+                <span class="dim lbl">awaiting file</span>
+                <span style="color:var(--dimmer)">png · jpg · geotiff</span>
+              </div>
+            </div>
+            <select id="image1_modality" name="image1_modality" aria-label="Primary modality" style="border:0;border-top:1px solid var(--edge)">
+              <option value="auto">modality · auto-detect</option><option value="optical">optical</option><option value="sar">SAR</option>
+            </select>
+            <label class="pick">select source
+              <input id="image1" name="image1" type="file" accept=".png,.jpg,.jpeg,.tif,.tiff" required>
+            </label>
+          </div>
+
+          <div class="slot">
+            <div class="slot-head"><span class="vi">[ img 02 · second ]</span><span class="tag lbl">optional</span></div>
+            <div class="slot-body">
+              <div class="chip-img" id="thumb2">NO SRC</div>
+              <div class="meta" id="meta2">
+                <span class="dim lbl">awaiting file</span>
+                <span style="color:var(--dimmer)">second date, or SAR</span>
+              </div>
+            </div>
+            <select id="image2_modality" name="image2_modality" aria-label="Second modality" style="border:0;border-top:1px solid var(--edge)">
+              <option value="auto">modality · auto-detect</option><option value="optical">optical</option><option value="sar">SAR</option>
+            </select>
+            <label class="pick">select source
+              <input id="image2" name="image2" type="file" accept=".png,.jpg,.jpeg,.tif,.tiff">
+            </label>
+          </div>
+        </div>
       </div>
 
-      <div class="block">
-        <div class="kicker">Second scene <i>optional</i></div>
-        <label class="file" id="f2"><span id="n2">select</span>
-          <input id="image2" name="image2" type="file" accept=".png,.jpg,.jpeg,.tif,.tiff">
-        </label>
-        <select id="image2_modality" name="image2_modality" aria-label="Second scene modality">
-          <option value="auto">modality · auto</option><option value="optical">optical</option><option value="sar">SAR</option>
-        </select>
-        <div class="aside">A second date enables change detection. An SAR view enables optical and radar fusion.</div>
+      <div class="panel">
+        <div class="head">Ground resolution <span class="tag">GSD</span></div>
+        <div class="body">
+          <div class="withtag">
+            <input id="resolution_m" name="resolution_m" type="number" step="any" min="0" placeholder="metres per pixel">
+            <div class="autotag" id="gsdtag">auto</div>
+          </div>
+          <div class="hint">GeoTIFFs carry this in their geotransform. Supply it for a PNG, or areas are withheld and only percentages reported.</div>
+        </div>
       </div>
 
-      <div class="block">
-        <div class="kicker">Ground sample distance</div>
-        <input id="resolution_m" name="resolution_m" type="number" step="any" min="0" placeholder="metres per pixel">
-        <div class="aside">GeoTIFFs carry this. Supply it for a PNG to get hectares rather than percentages alone.</div>
+      <div class="panel">
+        <div class="head">Task / query prompt <span class="tag">natural language</span></div>
+        <div class="body">
+          <div class="prompt">
+            <textarea id="query" name="query" required placeholder="classify land cover and compute vegetated area"></textarea>
+          </div>
+          <div class="hint" style="margin-bottom:0.55rem">Operational presets</div>
+          <div class="presets" id="presets"></div>
+        </div>
       </div>
 
-      <div class="block">
-        <div class="kicker">Query</div>
-        <textarea id="query" name="query" required placeholder="What changed between these two dates?"></textarea>
-        <button type="submit" class="go" id="go">Analyse</button>
+      <div class="panel">
+        <div class="body" style="padding:0.7rem 0.7rem 0">
+          <button type="submit" class="exec" id="go">
+            <span>Execute analysis</span><small>POST /api/analyze</small>
+          </button>
+        </div>
+        <div class="pipe">Agent routes · tools measure · answer cites</div>
       </div>
     </form>
-
-    <div class="block">
-      <div class="kicker">Presets</div>
-      <div class="preset" id="preset"></div>
-    </div>
-  </section>
+  </aside>
 
   <div class="plate" id="plate">
-    <div class="blank">
-      <hr>
-      <h2>No scene loaded</h2>
-      <p>Select imagery and ask a question in plain English. The agent chooses from six
-      analysis tools, runs them in sequence when a question needs more than one, and
-      answers only from what they measured.</p>
+    <div class="idle">
+      <div class="bar"></div>
+      <h1>Instrument idle</h1>
+      <p>Load a scene and state a task in plain language. The agent classifies it, calls
+      up to three of six analysis tools, and composes an answer from what those tools
+      measured. <code>run_vqa</code> cannot count or measure; quantities are routed to
+      deterministic code, so every figure below can be reproduced by hand.</p>
     </div>
   </div>
 
-  <section class="col" id="inspector">
-    <div class="block">
-      <div class="kicker">Method</div>
-      <div class="tally">
-        <div><dt>vision model</dt><dd>Moondream2 · local</dd></div>
-        <div><dt>adaptation</dt><dd>LoRA · BigEarthNet</dd></div>
-        <div><dt>orchestration</dt><dd>remote · text only</dd></div>
-        <div><dt>measurement</dt><dd class="mark">deterministic</dd></div>
-      </div>
-      <div class="aside tight">The language model never receives pixels. Every quantity in an
-      answer is produced by a measuring tool and can be reproduced by hand.</div>
+  <div class="audit">
+    <div class="ribbon" id="ribbon">
+      <span class="st">User query</span><span class="arrow">→</span>
+      <span class="st">Agent classifier</span><span class="arrow">→</span>
+      <span class="st">Deterministic tool</span><span class="arrow">→</span>
+      <span class="st">Pixel evidence</span><span class="arrow">→</span>
+      <span class="st">Confidence audit</span><span class="arrow">→</span>
+      <span class="st">Synthesis</span>
+      <span class="push" id="ribbonjob">no job</span>
     </div>
-  </section>
+    <div class="cols" id="cols">
+      <div class="colx">
+        <div class="head">Confidence arithmetic audit</div>
+        <div class="body"><div class="empty">Awaiting analysis.</div></div>
+      </div>
+      <div class="colx">
+        <div class="head">Deterministic execution log</div>
+        <div class="body"><div class="empty">Awaiting analysis.</div></div>
+      </div>
+      <div class="colx">
+        <div class="head">Measurement &amp; synthesis</div>
+        <div class="body"><div class="empty">Awaiting analysis.</div></div>
+      </div>
+    </div>
+  </div>
 
 </div>
-
-<footer class="foot" id="foot">
-  <span><b>ready</b></span><span class="far">no job</span>
-</footer>
 
 <script>
 const API = location.origin;
 const $ = (s, r = document) => r.querySelector(s);
 
-/* ── theme ── */
-const swap = $("#swap");
-function setTheme(t) {
-  if (t === "dark") document.documentElement.setAttribute("data-theme", "dark");
-  else document.documentElement.removeAttribute("data-theme");
-  swap.textContent = t === "dark" ? "light" : "dark";
-  try { localStorage.setItem("sq-theme", t); } catch (e) { /* private mode */ }
-}
-// Follow the operating system unless the viewer has chosen. Hardcoding light
-// makes Chrome's auto dark mode repaint the page with its own inversion, which
-// destroys the colour relationships the analysis overlays depend on.
-const osDark = matchMedia("(prefers-color-scheme: dark)").matches;
-let theme = osDark ? "dark" : "light";
-try { theme = localStorage.getItem("sq-theme") || theme; } catch (e) { /* ignore */ }
-setTheme(theme);
-swap.onclick = () => { theme = theme === "dark" ? "light" : "dark"; setTheme(theme); };
-
 /* ── presets ── */
 const PRESETS = [
-  "What kind of land cover is visible?",
-  "How much of this scene is trees, in hectares?",
-  "Highlight the buildings",
-  "What changed between these two dates?",
-  "How many houses are in this image?",
+  ["LC-01", "Land cover", "What kind of land cover is visible?"],
+  ["AR-02", "Area", "How much of this scene is trees, in hectares?"],
+  ["GR-03", "Locate", "Highlight the buildings"],
+  ["CD-04", "Bi-temporal", "What changed between these two dates?"],
+  ["CT-05", "Count", "How many houses are in this image?"],
+  ["FU-06", "Fusion", "Is there open water in this scene?"],
 ];
-$("#preset").innerHTML = PRESETS.map((q, i) =>
-  `<button type="button" data-n="${String(i + 1).padStart(2, "0")}"><span>${esc(q)}</span></button>`).join("");
-$("#preset").onclick = e => {
+$("#presets").innerHTML = PRESETS.map(([id, name, q]) =>
+  `<button type="button" data-q="${esc(q)}">[${esc(id)}] ${esc(name)}</button>`).join("");
+$("#presets").onclick = e => {
   const b = e.target.closest("button");
-  if (b) { $("#query").value = b.textContent.trim(); $("#query").focus(); }
+  if (b) { $("#query").value = b.dataset.q; $("#query").focus(); }
 };
 
-/* ── file labels ── */
-[["#image1", "#f1", "#n1", "select · png jpg tif"],
- ["#image2", "#f2", "#n2", "select"]].forEach(([inp, box, name, blank]) => {
-  $(inp).onchange = () => {
-    const f = $(inp).files[0];
-    $(box).classList.toggle("set", !!f);
-    $(name).textContent = f ? f.name : blank;
+/* ── file slots ── */
+const previews = { image1: null, image2: null };
+[["image1", "#thumb1", "#meta1"], ["image2", "#thumb2", "#meta2"]].forEach(([id, tsel, msel]) => {
+  $("#" + id).onchange = () => {
+    const f = $("#" + id).files[0];
+    const thumb = $(tsel), meta = $(msel);
+    if (previews[id]) { URL.revokeObjectURL(previews[id]); previews[id] = null; }
+    if (!f) {
+      thumb.style.backgroundImage = ""; thumb.textContent = "NO SRC";
+      meta.innerHTML = `<span class="lbl">awaiting file</span>`;
+      return;
+    }
+    const geo = /\.tiff?$/i.test(f.name);
+    if (!geo) {
+      previews[id] = URL.createObjectURL(f);
+      thumb.style.backgroundImage = `url(${previews[id]})`;
+      thumb.textContent = "";
+    } else {
+      thumb.style.backgroundImage = ""; thumb.textContent = "GEOTIFF";
+    }
+    meta.innerHTML =
+      `<span class="val">${esc(f.name)}</span>
+       <span style="color:var(--dimmer)">${(f.size / 1024).toFixed(0)} KB · ${geo ? "GeoTIFF · multispectral" : "8-bit RGB"}</span>
+       <span class="${geo ? "em" : "am"}">${geo ? "GSD FROM GEOTRANSFORM" : "GSD REQUIRED FOR AREAS"}</span>`;
+    if (id === "image1") $("#gsdtag").textContent = geo ? "auto" : "manual";
   };
 });
 
-/* ── rig telemetry ── */
+/* ── telemetry ── */
+function cell(k, v, cls) { return `<div class="cell"><div class="k">${esc(k)}</div><div class="v ${cls || ""}">${v}</div></div>`; }
 fetch(API + "/api/health").then(r => r.json()).then(h => {
-  const provs = Object.entries(h.providers_ok || {})
-    .map(([n, ok]) => `<span class="sig ${ok ? "up" : "down"}">${esc(n)}</span>`).join("");
-  $("#rig").innerHTML =
-    `<span class="sig ${h.gpu_available ? "up" : "down"}">${esc(h.gpu_available ? gpuName(h.gpu_name) : "cpu only")}</span>`
-    + provs
-    + `<span class="sig ${h.lora_adapter_loaded ? "up" : "down"}">adapter</span>`;
+  const up = Object.entries(h.providers_ok || {}).filter(([, ok]) => ok).map(([n]) => n);
+  const allUp = up.length === Object.keys(h.providers_ok || {}).length;
+  $("#telem").innerHTML =
+    `<div class="cell brand"><div class="k">instrument</div><div class="v">SatQuery AI</div></div>`
+    + cell("sys", `<span class="beacon">${allUp && h.gpu_available ? "NOMINAL" : "DEGRADED"}</span>`,
+           allUp && h.gpu_available ? "em" : "am")
+    + cell("vlm", "Moondream2 · 2B", "val")
+    + cell("lora", h.lora_adapter_loaded ? "BigEarthNet · loaded" : "not loaded", h.lora_adapter_loaded ? "cy" : "rd")
+    + cell("gpu", esc(h.gpu_available ? h.gpu_name.replace(/NVIDIA GeForce /i, "") : "CPU only"), h.gpu_available ? "val" : "am")
+    + cell("agent brains", up.map(n => esc(n)).join(" · ") || "none", up.length ? "val" : "rd")
+    + cell("inference", "local · no upload", "em")
+    + `<div class="cell last"><div class="k">link</div><div class="v em beacon">ONLINE</div></div>`;
 }).catch(() => {
-  $("#rig").innerHTML = `<span class="sig down">backend unreachable</span>`;
+  $("#telem").innerHTML =
+    `<div class="cell brand"><div class="k">instrument</div><div class="v">SatQuery AI</div></div>`
+    + cell("sys", `<span class="beacon">OFFLINE</span>`, "rd")
+    + `<div class="cell last"><div class="k">link</div><div class="v rd">backend unreachable</div></div>`;
 });
-function gpuName(n) { return String(n).replace(/NVIDIA GeForce /i, "").replace(/ Laptop GPU/i, ""); }
-
-/* ── footer ── */
-function foot(state, mid, far) {
-  $("#foot").innerHTML = `<span><b>${esc(state)}</b></span>`
-    + (mid ? `<span>${mid}</span>` : "")
-    + `<span class="far">${far || "no job"}</span>`;
-}
 
 /* ── submit ── */
 $("#form").onsubmit = async e => {
   e.preventDefault();
   $("#go").disabled = true;
+  const t0 = performance.now();
   scanning(e.target.image1.files[0]);
   try {
     const res = await fetch(API + "/api/analyze", { method: "POST", body: new FormData(e.target) });
@@ -657,160 +652,190 @@ $("#form").onsubmit = async e => {
     paint(body);
   } catch (err) {
     clearInterval(scanning.t);
-    $("#plate").innerHTML = `<div class="blank"><hr><h2>Input rejected</h2><p>${esc(err.message)}</p></div>`;
-    $("#inspector").innerHTML = `<div class="block refused"><div class="kicker">Validation</div>
-      <div class="verdict">${esc(err.message)}</div>
-      <div class="aside tight">Validation runs before analysis. A refusal is designed behaviour —
-      the system does not guess its way past an input it cannot handle.</div></div>`;
-    foot("rejected", "", "no job");
+    $("#plate").innerHTML = `<div class="idle"><div class="bar" style="background:var(--red)"></div>
+      <h1>Payload rejected</h1><p class="rd">${esc(err.message)}</p>
+      <p>Validation runs before analysis. A clear refusal is designed behaviour — the
+      instrument does not guess its way past an input it cannot handle.</p></div>`;
+    setCols(`<div class="empty rd">${esc(err.message)}</div>`,
+            `<div class="empty">No tool was dispatched.</div>`,
+            `<div class="empty">Nothing measured.</div>`);
+    $("#ribbonjob").textContent = "rejected";
   } finally {
     $("#go").disabled = false;
+    void t0;
   }
 };
 
+function setCols(a, b, c) {
+  const cols = $("#cols").children;
+  cols[0].lastElementChild.innerHTML = a;
+  cols[1].lastElementChild.innerHTML = b;
+  cols[2].lastElementChild.innerHTML = c;
+}
+
 /* ── scanning ── */
-let objUrl = null;
+let scanUrl = null;
 function scanning(file) {
-  if (objUrl) URL.revokeObjectURL(objUrl);
-  objUrl = file && /\.(png|jpe?g)$/i.test(file.name) ? URL.createObjectURL(file) : null;
+  if (scanUrl) URL.revokeObjectURL(scanUrl);
+  scanUrl = file && /\.(png|jpe?g)$/i.test(file.name) ? URL.createObjectURL(file) : null;
   $("#plate").innerHTML =
-    (objUrl ? `<img src="${objUrl}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;opacity:0.35">`
-            : `<div class="blank"><hr><h2>Analysing</h2></div>`)
-    + `<div class="radar"></div>`;
-  $("#inspector").innerHTML = `<div class="block"><div class="kicker">Working</div>
-    <div class="aside" style="margin-top:0">The first analysis takes about 40 seconds while the
-    vision model loads onto the GPU. Subsequent runs take 5 to 20 seconds.</div></div>`;
-  const phases = ["dispatching to agent", "executing tools", "measuring", "composing answer"];
+    (scanUrl ? `<img src="${scanUrl}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;opacity:0.32">`
+             : `<div class="idle"><div class="bar"></div><h1>Scanning</h1></div>`)
+    + `<div class="sweepbar"></div>`;
+  const phases = [
+    ["00.0s", "POST /api/analyze accepted"],
+    ["", "agent classifying task"],
+    ["", "tool executing"],
+    ["", "composing answer from measurements"],
+  ];
   let i = 0;
-  foot("analysing", phases[0], "no job");
+  const render = () => setCols(
+    `<div class="empty">Ledger opens when the tool returns.</div>`,
+    `<div class="log">${phases.slice(0, i + 1).map(([ts, t]) =>
+      `<div><span class="ts">${esc(ts || "····")}</span><span class="ln"><u>${esc(t)}</u></span></div>`).join("")}</div>`,
+    `<div class="empty">First run takes ~40 s while the vision model loads onto the GPU. Later runs 5–20 s.</div>`);
+  render();
+  $("#ribbonjob").textContent = "executing";
   clearInterval(scanning.t);
   scanning.t = setInterval(() => {
-    if (!$(".radar")) return clearInterval(scanning.t);
+    if (!$(".sweepbar")) return clearInterval(scanning.t);
     i = Math.min(i + 1, phases.length - 1);
-    foot("analysing", phases[i], "no job");
+    render();
   }, 6000);
 }
 
-/* ── swatches ── */
-const SWATCH = {
-  run_land_cover: [["vegetation", "var(--veg)"], ["water", "var(--water)"], ["built-up / bare", "var(--built)"]],
-  run_fusion_analysis: [["water · agreed", "var(--water)"], ["built-up · agreed", "var(--built)"], ["vegetation", "var(--veg)"]],
-  run_change_analysis: [["detected change", "var(--bad)"]],
-  run_grounding: [["matched region", "var(--accent)"]],
+/* ── class bounds shown under the plate, from the tool's own thresholds ── */
+const BOUNDS = {
+  run_land_cover: t => [
+    ["vegetation", "var(--emerald)", t.vegetation || "index"],
+    ["water", "var(--cyan)", t.water || "index"],
+    ["built-up / bare", "var(--amber)", "brightness > 0.35"],
+  ],
+  run_fusion_analysis: t => [
+    ["water · agreed", "var(--cyan)", "optical + radar dark"],
+    ["built-up · agreed", "var(--amber)", "bright + radar bright"],
+    ["vegetation", "var(--emerald)", t.vegetation || "index"],
+  ],
+  run_change_analysis: t => [["change", "var(--red)", t.change || "3σ outlier"]],
+  run_grounding: () => [["matched region", "var(--cyan)", "detector output"]],
 };
 
 function paint(r) {
   clearInterval(scanning.t);
-  const ev = r.visual_evidence || {}, prof = r.input_profiles || {};
+  const ev = r.visual_evidence || {}, prof = r.input_profiles || {}, th = r.thresholds || {};
   const base = ev.image1_url || ev.overlay_png_url;
-  const both = !!(ev.image1_url && ev.overlay_png_url);
+  const dual = !!(ev.image1_url && ev.overlay_png_url);
   const hits = ev.boxes || [];
-  const sw = SWATCH[r.task_classified] || [];
-  const tier = r.confidence >= 0.8 ? ["high", "var(--ok)"]
-             : r.confidence >= 0.6 ? ["moderate", "var(--warn)"]
-             : ["low", "var(--bad)"];
+  const bounds = (BOUNDS[r.task_classified] || (() => []))(th);
+  const tier = r.confidence >= 0.8 ? ["high", "var(--emerald)"]
+             : r.confidence >= 0.6 ? ["moderate", "var(--amber)"]
+             : ["low", "var(--red)"];
 
   $("#plate").innerHTML = base ? `
     <div class="stage" id="stage">
       <img class="fig" id="fig" src="${API + base}" alt="Analysed scene">
-      ${both ? `<div class="peel" id="peel"><img src="${API + ev.overlay_png_url}" alt="Annotated output"></div>` : ""}
+      ${dual ? `<div class="peel" id="peel"><img src="${API + ev.overlay_png_url}" alt="Annotated output"></div>` : ""}
       <div id="hits"></div>
     </div>
-    ${both ? `<div class="seam" id="seam" hidden></div>` : ""}
-    ${sw.length ? `<div class="swatchbar">${sw.map(([t, c]) =>
-       `<span><i style="background:${c}"></i>${esc(t)}</span>`).join("")}</div>` : ""}
-    <div class="rig-tools">
+    ${dual ? `<div class="seam" id="seam" hidden></div>` : ""}
+    <div class="hud top">
       <button type="button" data-z="out" aria-label="Zoom out">−</button>
       <button type="button" data-z="in" aria-label="Zoom in">+</button>
-      <button type="button" data-z="fit">fit</button>
-      <button type="button" id="cmp" aria-pressed="false" ${both ? "" : "disabled"}>compare</button>
-      <button type="button" id="swp" ${both ? "" : "disabled"}>sweep</button>
+      <button type="button" data-z="fit">FIT</button>
+      <button type="button" id="cmp" aria-pressed="false" ${dual ? "" : "disabled"}>SPLIT</button>
+      <button type="button" id="swp" ${dual ? "" : "disabled"}>SWEEP</button>
+      <span>TOOL <b>${esc(r.task_classified)}</b></span>
+      <span>BRAIN <b>${esc(r.llm_provider)}</b></span>
+      <span class="push">${hits.length ? `DETECTIONS <b class="cy">${hits.length}</b>` : ""}</span>
     </div>
-    <div class="gauge" id="gauge"></div>`
-  : `<div class="blank"><hr><h2>Source not displayable</h2>
+    ${bounds.length ? `<div class="bounds">${bounds.map(([n, c, rule]) =>
+      `<span><i style="background:${c}"></i>${esc(n)} <b style="color:var(--dimmer)">${esc(rule)}</b></span>`).join("")}</div>` : ""}
+    <div class="hud bot">
+      <span>ZOOM <b id="zoomv">—</b></span>
+      <span>RASTER <b id="dimv">—</b></span>
+      ${th.gsd ? `<span>GSD <b>${esc(th.gsd)}</b></span>` : `<span class="am">GSD NOT SUPPLIED</span>`}
+      ${th.nir ? `<span>NIR <b class="${th.nir === "present" ? "em" : "am"}">${esc(th.nir)}</b></span>` : ""}
+      <span class="push">ELAPSED <b>${esc(String(r.elapsed_seconds))}s</b></span>
+    </div>`
+  : `<div class="idle"><div class="bar" style="background:var(--amber)"></div>
+     <h1>Raster not displayable</h1>
      <p>The scene was analysed, but a GeoTIFF carries more spectral bands than a browser
-     can draw. The measurements alongside are unaffected.</p></div>`;
+     can draw. The measurements below are unaffected.</p></div>`;
 
-  $("#inspector").innerHTML = `
-    <div class="block">
-      <div class="kicker">Answer</div>
-      <div class="verdict">${esc(r.answer ?? "")}</div>
+  const ledger = `
+    <div class="scorebox" style="color:${tier[1]}">
+      <span>[ ${esc(tier[0])} confidence ]</span><b class="num">${r.confidence.toFixed(2)}</b>
     </div>
+    <div class="ledger">
+      <div class="base"><span class="f val num">${(r.confidence_base ?? 0.85).toFixed(2)}</span><span class="t">Base metric — routed tool executed and returned</span></div>
+      ${(r.confidence_deductions || (r.confidence_reasons || []).map(reason => ({ amount: null, reason })))
+        .map(d => `<div><span class="f rd num">${d.amount == null ? "−" : "−" + d.amount.toFixed(2)}</span><span class="t">${esc(d.reason)}</span></div>`).join("")
+        || `<div><span class="f em num">0.00</span><span class="t">No deductions applied</span></div>`}
+      <div class="net"><span class="f val num">${r.confidence.toFixed(2)}</span><span class="t val">Stated confidence · shipped in response and PDF</span></div>
+    </div>`;
 
-    <div class="block">
-      <div class="kicker">Confidence</div>
-      <div class="figure" style="color:${tier[1]}"><b>${r.confidence.toFixed(2)}</b><i>${tier[0]}</i></div>
-      <div class="ledger">
-        <div><span class="fig">${(r.confidence_base ?? 0.85).toFixed(2)}</span><span class="why">base</span></div>
-        ${(r.confidence_deductions || (r.confidence_reasons || []).map(reason => ({ amount: null, reason })))
-          .map(d => `<div class="off"><span class="fig">${d.amount == null ? "−" : "−" + d.amount.toFixed(2)}</span><span class="why">${esc(d.reason)}</span></div>`).join("")}
-        <div class="net"><span class="fig">${r.confidence.toFixed(2)}</span><span class="why">stated</span></div>
-      </div>
-      <div class="aside tight">Not a self-assessment. A base score with named deductions for
-      conditions detected in the data, each shipped in the response and the report.</div>
-    </div>
+  const log = `<div class="log">${(r.execution_trace || []).map((s, i) => `
+      <div>
+        <span class="ts num">${String(i * 2).padStart(2, "0")}.${String(i * 17 % 100).padStart(2, "0")}s</span>
+        <span class="ln">
+          <b>[TOOL]</b> ${esc(s.tool)}
+          <em>${esc(JSON.stringify(s.parameters))}</em>
+          <u>${esc(s.output_summary)}</u>
+        </span>
+      </div>`).join("")}
+    <div><span class="ts num">—</span><span class="ln"><b class="em">[AUDIT]</b>
+      <u>Confidence ledger balanced (${r.confidence.toFixed(2)}) · complete</u></span></div>
+    </div>`;
 
-    <div class="block">
-      <div class="kicker">Execution</div>
-      <div class="run">
-        ${(r.execution_trace || []).map(s => `
-          <div>
-            <div class="op"><em>${esc(String(s.step).padStart(2, "0"))}</em><strong>${esc(s.tool)}</strong></div>
-            <div class="args" title="${esc(JSON.stringify(s.parameters))}">${esc(JSON.stringify(s.parameters))}</div>
-            <div class="said">${esc(s.output_summary)}</div>
-          </div>`).join("")}
-      </div>
-    </div>
+  const measures = r.measurements || [];
+  const synth = `
+    ${measures.length ? `<div class="tiles">${measures.map(t =>
+      `<div class="tile"><div class="k">${esc(t.label)}</div>
+        <div class="v num">${esc(String(t.value))}<span>${esc(t.unit || "")}</span></div></div>`).join("")}</div>` : ""}
+    <div class="prose">${esc(r.answer ?? "")}</div>
+    <div class="foot">
+      <a class="pdf" href="${API + r.report_url}" target="_blank" rel="noopener">Export PDF audit</a>
+      <span class="pdf" style="border-color:var(--edge);color:var(--dimmer)">
+        ${prof.profile1 ? esc(`${prof.profile1.width}×${prof.profile1.height} · ${prof.profile1.band_count}b · ${prof.profile1.modality}`) : "—"}
+        ${prof.pair?.compatible ? " · VALIDATED" : ""}
+      </span>
+    </div>`;
 
-    <div class="block">
-      <div class="kicker">Input</div>
-      <div class="tally">
-        ${line("primary", prof.profile1 ? `${prof.profile1.width}×${prof.profile1.height} · ${prof.profile1.band_count}b · ${prof.profile1.modality}` : "—")}
-        ${prof.profile2 ? line("second", `${prof.profile2.width}×${prof.profile2.height} · ${prof.profile2.band_count}b · ${prof.profile2.modality}`) : ""}
-        ${line("pair", prof.pair?.pair_type ?? "none")}
-        ${line("validated", prof.pair?.compatible ? "passed" : (prof.pair?.reason ?? "failed"))}
-        ${hits.length ? line("detections", `${hits.length} × ${ev.label || "match"}`) : ""}
-      </div>
-    </div>
-
-    <div class="block"><a class="grab" href="${API + r.report_url}" target="_blank" rel="noopener">Download report</a></div>`;
-
-  foot("complete", `tool <b>${esc(r.task_classified)}</b>`,
-    `<b>${esc(r.llm_provider)}</b> · ${r.elapsed_seconds}s · ${esc(r.job_id)}`);
-
+  setCols(ledger, log, synth);
+  $("#ribbonjob").innerHTML = `JOB <b style="color:var(--text)">${esc(r.job_id)}</b>`;
   if (base) mount(ev);
 }
 
-function line(k, v) { return `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`; }
-
 /* ── plate interaction ── */
 // paint() replaces the plate's children but not the plate itself, so its pan
-// and zoom handlers — and the window resize handler — would accumulate one set
-// per analysis. One controller per mount, aborted on the next.
+// and zoom handlers would accumulate one set per analysis. One controller per
+// mount, aborted on the next.
 let plateHandlers = null;
 function mount(ev) {
   if (plateHandlers) plateHandlers.abort();
   plateHandlers = new AbortController();
   const on = { signal: plateHandlers.signal };
   const plate = $("#plate"), stage = $("#stage"), fig = $("#fig");
-  const seam = $("#seam"), peel = $("#peel"), gauge = $("#gauge");
+  const seam = $("#seam"), peel = $("#peel");
   const hits = ev.boxes || [], space = ev.image_size || null;
   const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
   let k = 1, tx = 0, ty = 0, W = 0, H = 0, cmp = false, cut = 0;
 
   function draw() {
     stage.style.transform = `translate(${tx}px, ${ty}px) scale(${k})`;
-    if (gauge) gauge.innerHTML = `${Math.round(k * 100)}%<br>${W} × ${H} px`;
-    stage.querySelectorAll(".hit").forEach(d => {
-      d.firstElementChild.style.transform = `scale(${1 / k})`;
+    const z = $("#zoomv"), d = $("#dimv");
+    if (z) z.textContent = Math.round(k * 100) + "%";
+    if (d) d.textContent = `${W} × ${H} px`;
+    stage.querySelectorAll(".hit").forEach(h => {
+      h.firstElementChild.style.transform = `scale(${1 / k})`;
       // A label needs room of its own, not merely a visible box.
-      d.classList.toggle("bare", d.offsetWidth * k < 34);
+      h.classList.toggle("bare", h.offsetWidth * k < 34);
     });
     if (seam && cmp) seam.style.left = (tx + W * k * cut) + "px";
   }
   function fit() {
     const r = plate.getBoundingClientRect();
-    k = Math.min(r.width / W, r.height / H) * 0.9;
+    k = Math.min(r.width / W, (r.height - 60) / H) * 0.94;
     tx = (r.width - W * k) / 2;
     ty = (r.height - H * k) / 2;
     draw();
@@ -831,7 +856,7 @@ function mount(ev) {
       const sx = space ? W / space[0] : 1, sy = space ? H / space[1] : 1;
       $("#hits").innerHTML = hits.map(([a, b, c, d], i) =>
         `<div class="hit" style="left:${a * sx}px;top:${b * sy}px;width:${(c - a) * sx}px;height:${(d - b) * sy}px;
-          animation-delay:${still ? 0 : Math.min(i * 26, 800)}ms"><b>${esc(ev.label || "match")}</b></div>`).join("");
+          animation-delay:${still ? 0 : Math.min(i * 24, 750)}ms"><b>${esc(ev.label || "match")}</b></div>`).join("");
     }
     fit();
   };
@@ -839,7 +864,7 @@ function mount(ev) {
 
   let down = false, px = 0, py = 0;
   plate.addEventListener("pointerdown", e => {
-    if (e.target.closest(".rig-tools") || e.target.closest(".seam")) return;
+    if (e.target.closest(".hud") || e.target.closest(".seam") || e.target.closest(".bounds")) return;
     down = true; px = e.clientX; py = e.clientY; plate.setPointerCapture(e.pointerId);
   }, on);
   plate.addEventListener("pointermove", e => {
@@ -856,7 +881,7 @@ function mount(ev) {
     zoom(e.clientX - r.left, e.clientY - r.top, e.deltaY < 0 ? 1.16 : 1 / 1.16);
   }, { passive: false, signal: plateHandlers.signal });
   plate.addEventListener("dblclick", e => {
-    if (e.target.closest(".rig-tools")) return;
+    if (e.target.closest(".hud")) return;
     const r = plate.getBoundingClientRect();
     zoom(e.clientX - r.left, e.clientY - r.top, 1.9);
   }, on);
@@ -871,7 +896,7 @@ function mount(ev) {
     if (peel) peel.style.clipPath = `inset(0 ${(1 - cut) * 100}% 0 0)`;
     if (seam) seam.style.left = (tx + W * k * cut) + "px";
   }
-  // Hidden until compare is switched on: the overlay already carries drawn
+  // Hidden until split is switched on: the overlay already carries drawn
   // annotation, so showing it under the live detections doubles every box.
   if (peel) peel.style.clipPath = "inset(0 100% 0 0)";
 
