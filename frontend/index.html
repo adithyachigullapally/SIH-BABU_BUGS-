@@ -723,7 +723,7 @@ function paint(r) {
         ${prof.profile2 ? fact("second", `${prof.profile2.width}×${prof.profile2.height} · ${prof.profile2.band_count}b · ${prof.profile2.modality}`) : ""}
         ${fact("pair", prof.pair?.pair_type ?? "none")}
         ${fact("validated", prof.pair?.compatible ? "passed" : (prof.pair?.reason ?? "failed"))}
-        ${dets.length ? fact("detections", `${dets.length} × ${ev.label}`) : ""}
+        ${dets.length ? fact("detections", `${dets.length} × ${ev.label || "match"}`) : ""}
       </div>
     </div>
 
